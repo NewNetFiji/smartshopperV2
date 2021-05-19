@@ -8,11 +8,13 @@
     "clsx": "latest",
     "formik": "^2.2.6",
     "formik-material-ui": "^3.0.1",
+    "graphql": "^15.5.0",
     "next": "latest",
     "prop-types": "latest",
     "react": "latest",
     "react-dom": "latest",
     "react-scripts": "^4.0.3",
+    "urql": "^2.0.3",
     "yup": "^0.32.9"
   },
   "scripts": {

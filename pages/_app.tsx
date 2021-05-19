@@ -4,6 +4,14 @@ import Head from 'next/head';
 import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import theme from '../src/theme';
+import { Provider, createClient } from 'urql';
+
+const client = createClient({
+  url: 'http://localhost:4000/graphql',
+  fetchOptions: {
+    credentials:  "include"
+  }
+});
 
 export default function MyApp(props) {
   const { Component, pageProps } = props;
@@ -17,6 +25,7 @@ export default function MyApp(props) {
   }, []);
 
   return (
+    <Provider value={client}>
     <React.Fragment>
       <Head>
         <title>Smart Shopper Fj</title>
@@ -28,6 +37,7 @@ export default function MyApp(props) {
         <Component {...pageProps} />
       </ThemeProvider>
     </React.Fragment>
+    </Provider>
   );
 }
 

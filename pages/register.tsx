@@ -11,6 +11,7 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import { Formik, Form, Field } from "formik";
+import { useMutation } from "urql";
 
 interface Values {
   email: string;
@@ -54,8 +55,36 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const REGISTER_MUT = `
+mutation Register(
+  $email: String!
+  $password: String!
+  $firstName: String!
+  $lastName: String!
+) {
+  register(
+    options: {
+      email: $email
+      firstName: $firstName
+      lastName: $lastName
+      password: $password
+    }
+  ) {
+    user {
+      id
+      status
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+`
+
 export const Register: React.FC<registerProps> = ({}) => {
   const classes = useStyles();
+  const [,register] = useMutation(REGISTER_MUT)
 
   return (
     <Container component="main" maxWidth="xs">
@@ -87,10 +116,10 @@ export const Register: React.FC<registerProps> = ({}) => {
             return errors;
           }}
           onSubmit={(values) => {
-            console.log(values);
+           return register(values)
           }}
         >
-          {(values, handleChange ) => (
+          {( values, isSubmitting) => (
             <Form className={classes.form}>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
@@ -103,8 +132,7 @@ export const Register: React.FC<registerProps> = ({}) => {
                     fullWidth
                     id="firstName"
                     label="First Name"
-                    autoFocus
-                    onChange={handleChange}
+                    autoFocus                                        
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -146,14 +174,15 @@ export const Register: React.FC<registerProps> = ({}) => {
                   />
                 </Grid>
 
-                {/* {isSubmitting && <LinearProgress />} */}
+                {isSubmitting && <LinearProgress />}
               </Grid>
               <Button
                 fullWidth
                 variant="contained"
                 color="primary"
-                // disabled={isSubmitting}
-                // onClick={submitForm}
+                type="submit"
+                //disabled={isSubmitting}
+                //onClick={submitForm}
                 className={classes.submit}
               >
                 Sign Up
