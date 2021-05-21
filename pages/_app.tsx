@@ -5,6 +5,8 @@ import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import theme from '../src/theme';
 import { Provider, createClient } from 'urql';
+import type { AppProps /*, AppContext */ } from 'next/app'
+import Header from "../src/components/ui/Header";
 
 const client = createClient({
   url: 'http://localhost:4000/graphql',
@@ -13,14 +15,14 @@ const client = createClient({
   }
 });
 
-export default function MyApp(props) {
+export default function MyApp(props: AppProps) {
   const { Component, pageProps } = props;
 
   React.useEffect(() => {
     // Remove the server-side injected CSS.
     const jssStyles = document.querySelector('#jss-server-side');
     if (jssStyles) {
-      jssStyles.parentElement.removeChild(jssStyles);
+      jssStyles.parentElement?.removeChild(jssStyles);
     }
   }, []);
 
@@ -34,6 +36,7 @@ export default function MyApp(props) {
       <ThemeProvider theme={theme}>
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
+        <Header />
         <Component {...pageProps} />
       </ThemeProvider>
     </React.Fragment>

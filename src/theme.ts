@@ -1,22 +1,42 @@
-import { createMuiTheme } from '@material-ui/core/styles';
-import { red } from '@material-ui/core/colors';
+import { createMuiTheme } from "@material-ui/core";
+import { amber, deepPurple } from "@material-ui/core/colors";
+import { CSSProperties } from "@material-ui/styles";
 
-// Create a theme instance.
-const theme = createMuiTheme({
+declare module "@material-ui/core/styles/createTypography" {
+  interface Typography {
+    tab: CSSProperties;
+    estimate: CSSProperties;
+  }
+  interface TypographyOptions {
+    tab: CSSProperties;
+    estimate: CSSProperties;
+  }
+}
+
+declare module "@material-ui/core/Typography/Typography" {
+  interface TypographyPropsVariantOverrides {
+    tab: true;
+    estimate: true;
+  }
+}
+
+export default createMuiTheme({
   palette: {
-    primary: {
-      main: '#556cd6',
+    primary: amber,
+    secondary: deepPurple,
+  },
+  typography: {
+    tab: {
+      fontFamily: "Raleway",
+      textTransform: "none",
+      fontWeight: 700,
+      fontSize: "1rem",
     },
-    secondary: {
-      main: '#19857b',
-    },
-    error: {
-      main: red.A400,
-    },
-    background: {
-      default: '#fff',
+    estimate: {
+      fontFamily: "Pacifico",
+      fontSize: "1rem",
+      textTransform: "none",
+      color: "white",
     },
   },
 });
-
-export default theme;

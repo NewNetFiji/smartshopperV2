@@ -11,13 +11,15 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import { Formik, Form, Field } from "formik";
-import { useMutation } from "urql";
+import { useRegisterMutation } from "../src/generated/graphql";
+import { toErrorMap } from "../src/utils/toErrorMap";
+import Router from "next/router";
 
 interface Values {
-  email: string;
-  password: string;
+  email: string;  
   firstName: string;
   lastName: string;
+  password: string;
 }
 
 interface registerProps {}
@@ -55,36 +57,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const REGISTER_MUT = `
-mutation Register(
-  $email: String!
-  $password: String!
-  $firstName: String!
-  $lastName: String!
-) {
-  register(
-    options: {
-      email: $email
-      firstName: $firstName
-      lastName: $lastName
-      password: $password
-    }
-  ) {
-    user {
-      id
-      status
-    }
-    errors {
-      field
-      message
-    }
-  }
-}
-`
-
 export const Register: React.FC<registerProps> = ({}) => {
   const classes = useStyles();
-  const [,register] = useMutation(REGISTER_MUT)
+  const [, register] = useRegisterMutation();
 
   return (
     <Container component="main" maxWidth="xs">
@@ -99,10 +74,10 @@ export const Register: React.FC<registerProps> = ({}) => {
 
         <Formik
           initialValues={{
-            email: "",
-            password: "",
+            email: "",            
             firstName: "",
             lastName: "",
+            password: "",
           }}
           validate={(values) => {
             const errors: Partial<Values> = {};
@@ -115,24 +90,29 @@ export const Register: React.FC<registerProps> = ({}) => {
             }
             return errors;
           }}
-          onSubmit={(values) => {
-           return register(values)
+          onSubmit={async (values, { setErrors }) => {
+            const response = await register({options: values});
+            if (response.data?.register.errors) {
+              setErrors(toErrorMap(response.data.register.errors));
+            } else if (response.data?.register.user) {
+              Router.push("/");
+            }
           }}
         >
-          {( values, isSubmitting) => (
+          {({  isSubmitting  }) => (
             <Form className={classes.form}>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <Field
                     component={TextField}
-                    autoComplete="fname"
+                    autoComplete="firstName"
                     name="firstName"
                     variant="outlined"
                     required
                     fullWidth
                     id="firstName"
                     label="First Name"
-                    autoFocus                                        
+                    autoFocus
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -144,7 +124,7 @@ export const Register: React.FC<registerProps> = ({}) => {
                     id="lastName"
                     label="Last Name"
                     name="lastName"
-                    autoComplete="lname"
+                    autoComplete="lastName"
                   />
                 </Grid>
 
@@ -182,7 +162,7 @@ export const Register: React.FC<registerProps> = ({}) => {
                 color="primary"
                 type="submit"
                 //disabled={isSubmitting}
-                //onClick={submitForm}
+                //onClick={resetForm()}
                 className={classes.submit}
               >
                 Sign Up
