@@ -22,12 +22,12 @@ declare module "@material-ui/core/Typography/Typography" {
 
 export default createMuiTheme({
   palette: {
-    primary: amber,
-    secondary: deepPurple,
+    primary: deepPurple,
+    secondary: amber,
   },
   typography: {
     tab: {
-      fontFamily: "Raleway",
+      fontFamily: "Roboto",
       textTransform: "none",
       fontWeight: 700,
       fontSize: "1rem",

@@ -16,24 +16,13 @@ import { useLoginMutation } from "../src/generated/graphql";
 import { Formik, Form, Field } from "formik";
 import Router from "next/router";
 import { toErrorMap } from "../src/utils/toErrorMap";
+import { Copyright } from "../src/components/copyright";
 
 interface Values {
   email: string;
   password: string;
 }
 
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {"Copyright © "}
-      <Link color="inherit" href="https://material-ui.com/">
-        NewNet Pte Ltd
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -88,7 +77,7 @@ export const SignIn = ({}) => {
               email: "",
               password: "",
             }}
-            onSubmit={async (values, { setErrors }) => {
+            onSubmit={async (values: Values, { setErrors }) => {
               const response = await login({options: values});
               if (response.data?.login.errors) {
                 setErrors(toErrorMap(response.data.login.errors));
@@ -144,7 +133,7 @@ export const SignIn = ({}) => {
                     </Link>
                   </Grid>
                   <Grid item>
-                    <Link href="#" variant="body2">
+                    <Link href="/register" variant="body2">
                       {"Don't have an account? Sign Up"}
                     </Link>
                   </Grid>

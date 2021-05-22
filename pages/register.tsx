@@ -14,6 +14,7 @@ import { Formik, Form, Field } from "formik";
 import { useRegisterMutation } from "../src/generated/graphql";
 import { toErrorMap } from "../src/utils/toErrorMap";
 import Router from "next/router";
+import { Copyright } from "../src/components/copyright";
 
 interface Values {
   email: string;  
@@ -24,18 +25,18 @@ interface Values {
 
 interface registerProps {}
 
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {"Copyright © "}
-      <Link color="inherit" href="https://material-ui.com/">
-        NewNet Pte Ltd
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
+// function Copyright() {
+//   return (
+//     <Typography variant="body2" color="textSecondary" align="center">
+//       {"Copyright © "}
+//       <Link color="inherit" href="#">
+//         NewNet Pte Ltd
+//       </Link>{" "}
+//       {new Date().getFullYear()}
+//       {"."}
+//     </Typography>
+//   );
+// }
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -169,7 +170,7 @@ export const Register: React.FC<registerProps> = ({}) => {
               </Button>
               <Grid container justify="flex-end">
                 <Grid item>
-                  <Link href="#" variant="body2">
+                  <Link href="/signIn" variant="body2">
                     Already have an account? Sign in
                   </Link>
                 </Grid>
