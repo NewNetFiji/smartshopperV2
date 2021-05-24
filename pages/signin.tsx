@@ -1,22 +1,25 @@
-import React from "react";
-import Avatar from "@material-ui/core/Avatar";
 import { Button, LinearProgress } from "@material-ui/core";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import { TextField } from "formik-material-ui";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Avatar from "@material-ui/core/Avatar";
+import Box from "@material-ui/core/Box";
 import Checkbox from "@material-ui/core/Checkbox";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Grid from "@material-ui/core/Grid";
 import Link from "@material-ui/core/Link";
 import Paper from "@material-ui/core/Paper";
-import Box from "@material-ui/core/Box";
-import Grid from "@material-ui/core/Grid";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
-import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
-import { useLoginMutation } from "../src/generated/graphql";
-import { Formik, Form, Field } from "formik";
+import Typography from "@material-ui/core/Typography";
+import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import { Field, Form, Formik } from "formik";
+import { TextField } from "formik-material-ui";
+import { withUrqlClient } from "next-urql";
 import Router from "next/router";
+import React from "react";
+import { Copyright } from "../src/components/ui/copyright";
+import { useLoginMutation } from "../src/generated/graphql";
+import { createUrqlClient } from "../src/utils/createUrqlClient";
 import { toErrorMap } from "../src/utils/toErrorMap";
-import { Copyright } from "../src/components/copyright";
+
 
 interface Values {
   email: string;
@@ -82,7 +85,7 @@ export const SignIn = ({}) => {
               if (response.data?.login.errors) {
                 setErrors(toErrorMap(response.data.login.errors));
               } else if (response.data?.login.user) {
-                Router.push("/");
+                Router.push("/dashBoard");
               }
             }}
           >
@@ -150,4 +153,4 @@ export const SignIn = ({}) => {
   );
 };
 
-export default SignIn;
+export default withUrqlClient(createUrqlClient)(SignIn);

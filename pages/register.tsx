@@ -1,20 +1,23 @@
-import React from "react";
 import { Button, LinearProgress } from "@material-ui/core";
-import { TextField } from "formik-material-ui";
 import Avatar from "@material-ui/core/Avatar";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import Link from "@material-ui/core/Link";
-import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
-import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
-import { Formik, Form, Field } from "formik";
-import { useRegisterMutation } from "../src/generated/graphql";
-import { toErrorMap } from "../src/utils/toErrorMap";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import Grid from "@material-ui/core/Grid";
+import Link from "@material-ui/core/Link";
+import { makeStyles } from "@material-ui/core/styles";
+import Typography from "@material-ui/core/Typography";
+import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import { Field, Form, Formik } from "formik";
+import { TextField } from "formik-material-ui";
+import { withUrqlClient } from "next-urql";
 import Router from "next/router";
-import { Copyright } from "../src/components/copyright";
+import React from "react";
+import { Copyright } from "../src/components/ui/copyright";
+import { useRegisterMutation } from "../src/generated/graphql";
+import { createUrqlClient } from "../src/utils/createUrqlClient";
+import { toErrorMap } from "../src/utils/toErrorMap";
+
 
 interface Values {
   email: string;  
@@ -186,4 +189,4 @@ export const Register: React.FC<registerProps> = ({}) => {
   );
 };
 
-export default Register;
+export default  withUrqlClient(createUrqlClient)(Register);

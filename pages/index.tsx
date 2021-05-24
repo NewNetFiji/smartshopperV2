@@ -1,5 +1,11 @@
-import React from 'react';
+import React from "react";
+import { withUrqlClient } from "next-urql";
+import { createUrqlClient } from "../src/utils/createUrqlClient";
 
-const Index = () => <div>Hello Next.js</div>;
+const Index = () => {
+  return (
+  <div>Hello Next.js</div>
+  )
+};
 
-export default Index
+export default withUrqlClient(createUrqlClient)(Index);
