@@ -1,0 +1,18 @@
+query Products {
+  products {
+    id
+    createdAt
+    updatedAt
+    title
+    description
+    productAvailabileTo
+    productAvailabileFrom
+    basePrice
+    discount
+    image
+    category
+    status
+    manufacturer
+    tags
+  }
+}
