@@ -11,16 +11,18 @@ import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import { Field, Form, Formik } from "formik";
 import { TextField } from "formik-material-ui";
 import { withUrqlClient } from "next-urql";
-import Router from "next/router";
+import { useRouter } from "next/router";
 import React from "react";
 import { Copyright } from "../src/components/ui/copyright";
 import { useRegisterMutation } from "../src/generated/graphql";
 import { createUrqlClient } from "../src/utils/createUrqlClient";
+import { isServer } from "../src/utils/isServer";
 import { toErrorMap } from "../src/utils/toErrorMap";
-
+import NextLink from "next/link";
+import StyledLink from "../src/components/ui/styledLink";
 
 interface Values {
-  email: string;  
+  email: string;
   firstName: string;
   lastName: string;
   password: string;
@@ -62,6 +64,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const Register: React.FC<registerProps> = ({}) => {
+  const router = useRouter();
   const classes = useStyles();
   const [, register] = useRegisterMutation();
 
@@ -78,7 +81,7 @@ export const Register: React.FC<registerProps> = ({}) => {
 
         <Formik
           initialValues={{
-            email: "",            
+            email: "",
             firstName: "",
             lastName: "",
             password: "",
@@ -95,15 +98,17 @@ export const Register: React.FC<registerProps> = ({}) => {
             return errors;
           }}
           onSubmit={async (values, { setErrors }) => {
-            const response = await register({options: values});
+            const response = await register({ options: values });
             if (response.data?.register.errors) {
               setErrors(toErrorMap(response.data.register.errors));
             } else if (response.data?.register.user) {
-              Router.push("/");
+              if (!isServer()) {
+                router.push("/");
+              }
             }
           }}
         >
-          {({  isSubmitting  }) => (
+          {({ isSubmitting }) => (
             <Form className={classes.form}>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
@@ -173,9 +178,10 @@ export const Register: React.FC<registerProps> = ({}) => {
               </Button>
               <Grid container justify="flex-end">
                 <Grid item>
-                  <Link href="/signIn" variant="body2">
-                    Already have an account? Sign in
-                  </Link>
+                  <StyledLink
+                    route="/signIn"
+                    msg="Already have an account? Sign in?"
+                  />
                 </Grid>
               </Grid>
             </Form>
@@ -189,4 +195,4 @@ export const Register: React.FC<registerProps> = ({}) => {
   );
 };
 
-export default  withUrqlClient(createUrqlClient)(Register);
+export default withUrqlClient(createUrqlClient)(Register);

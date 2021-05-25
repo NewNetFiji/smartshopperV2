@@ -5,6 +5,7 @@ import Head from "next/head";
 import PropTypes from "prop-types";
 import React from "react";
 import theme from "../src/theme";
+ 
 export default function MyApp(props: AppProps) {
   const { Component, pageProps } = props;
 
@@ -19,6 +20,7 @@ export default function MyApp(props: AppProps) {
   return (
     <React.Fragment>
       <Head>
+      <link rel="icon" href="../src/assets/shoppingCart.jpg" />
         <title>Smart Shopper Fj</title>
         <meta
           name="viewport"

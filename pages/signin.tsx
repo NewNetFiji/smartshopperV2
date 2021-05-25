@@ -13,19 +13,20 @@ import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import { Field, Form, Formik } from "formik";
 import { TextField } from "formik-material-ui";
 import { withUrqlClient } from "next-urql";
-import Router from "next/router";
+import { useRouter } from "next/router";
 import React from "react";
 import { Copyright } from "../src/components/ui/copyright";
 import { useLoginMutation } from "../src/generated/graphql";
 import { createUrqlClient } from "../src/utils/createUrqlClient";
+import { isServer } from "../src/utils/isServer";
 import { toErrorMap } from "../src/utils/toErrorMap";
-
+import NextLink from "next/link";
+import StyledLink from "../src/components/ui/styledLink";
 
 interface Values {
   email: string;
   password: string;
 }
-
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -61,6 +62,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const SignIn = ({}) => {
+  const router = useRouter();
   const classes = useStyles();
   const [, login] = useLoginMutation();
   return (
@@ -81,11 +83,13 @@ export const SignIn = ({}) => {
               password: "",
             }}
             onSubmit={async (values: Values, { setErrors }) => {
-              const response = await login({options: values});
+              const response = await login({ options: values });
               if (response.data?.login.errors) {
                 setErrors(toErrorMap(response.data.login.errors));
               } else if (response.data?.login.user) {
-                Router.push("/dashBoard");
+                if (!isServer()) {
+                  router.push("/dashBoard");
+                }
               }
             }}
           >
@@ -131,14 +135,16 @@ export const SignIn = ({}) => {
                 </Button>
                 <Grid container>
                   <Grid item xs>
-                    <Link href="#" variant="body2">
-                      Forgot password?
-                    </Link>
+                    <StyledLink
+                      route="/forgotPassword"
+                      msg="Forgot Password?"
+                    />                    
                   </Grid>
                   <Grid item>
-                    <Link href="/register" variant="body2">
-                      {"Don't have an account? Sign Up"}
-                    </Link>
+                    <StyledLink
+                      route="/register"
+                      msg="Don't have an account? Signup"
+                    />
                   </Grid>
                 </Grid>
                 <Box mt={5}>
