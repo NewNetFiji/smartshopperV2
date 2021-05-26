@@ -22,8 +22,8 @@ export type FieldError = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  createProduct: Product;
-  updateProduct?: Maybe<Product>;
+  createProduct: ProductResponse;
+  updateProduct?: Maybe<ProductResponse>;
   deleteProduct?: Maybe<Scalars['Boolean']>;
   changePassword: UserResponse;
   forgotPassword: Scalars['Boolean'];
@@ -34,13 +34,12 @@ export type Mutation = {
 
 
 export type MutationCreateProductArgs = {
-  title: Scalars['String'];
+  options: ProductInput;
 };
 
 
 export type MutationUpdateProductArgs = {
-  title: Scalars['String'];
-  id: Scalars['Float'];
+  options: ProductInput;
 };
 
 
@@ -70,22 +69,55 @@ export type MutationLoginArgs = {
   options: UsernamePasswordInput;
 };
 
+export type ProdError = {
+  __typename?: 'ProdError';
+  field: Scalars['String'];
+  message: Scalars['String'];
+};
+
 export type Product = {
   __typename?: 'Product';
-  id: Scalars['Int'];
+  id: Scalars['Float'];
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
   title: Scalars['String'];
   description?: Maybe<Scalars['String']>;
   productAvailabileTo?: Maybe<Scalars['String']>;
   productAvailabileFrom?: Maybe<Scalars['String']>;
-  basePrice?: Maybe<Scalars['Int']>;
-  discount?: Maybe<Scalars['Int']>;
+  basePrice?: Maybe<Scalars['Float']>;
+  barcode?: Maybe<Scalars['String']>;
+  packSize?: Maybe<Scalars['String']>;
+  discount?: Maybe<Scalars['Float']>;
   image?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
   status: Scalars['String'];
   manufacturer?: Maybe<Scalars['String']>;
   tags?: Maybe<Scalars['String']>;
+};
+
+export type ProductInput = {
+  id: Scalars['Float'];
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  productAvailabileTo?: Maybe<Scalars['String']>;
+  productAvailabileFrom?: Maybe<Scalars['String']>;
+  basePrice?: Maybe<Scalars['Float']>;
+  barcode?: Maybe<Scalars['String']>;
+  packSize?: Maybe<Scalars['String']>;
+  discount?: Maybe<Scalars['Float']>;
+  image?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
+  manufacturer?: Maybe<Scalars['String']>;
+  tags?: Maybe<Scalars['String']>;
+};
+
+export type ProductResponse = {
+  __typename?: 'ProductResponse';
+  errors?: Maybe<Array<ProdError>>;
+  product?: Maybe<Product>;
 };
 
 export type Query = {
@@ -103,7 +135,7 @@ export type QueryProductArgs = {
 
 export type User = {
   __typename?: 'User';
-  id: Scalars['Int'];
+  id: Scalars['Float'];
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
   email: Scalars['String'];
@@ -162,6 +194,25 @@ export type ChangePasswordMutation = (
   ) }
 );
 
+export type CreateProductMutationVariables = Exact<{
+  options: ProductInput;
+}>;
+
+
+export type CreateProductMutation = (
+  { __typename?: 'Mutation' }
+  & { createProduct: (
+    { __typename?: 'ProductResponse' }
+    & { errors?: Maybe<Array<(
+      { __typename?: 'ProdError' }
+      & Pick<ProdError, 'field' | 'message'>
+    )>>, product?: Maybe<(
+      { __typename?: 'Product' }
+      & Pick<Product, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'description' | 'productAvailabileTo' | 'productAvailabileFrom' | 'basePrice' | 'barcode' | 'packSize' | 'discount' | 'image' | 'category' | 'status' | 'manufacturer' | 'tags'>
+    )> }
+  ) }
+);
+
 export type ForgotPasswordMutationVariables = Exact<{
   email: Scalars['String'];
 }>;
@@ -214,6 +265,19 @@ export type MeQuery = (
   & { me?: Maybe<(
     { __typename?: 'User' }
     & RegularUserFragment
+  )> }
+);
+
+export type ProductQueryVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type ProductQuery = (
+  { __typename?: 'Query' }
+  & { product?: Maybe<(
+    { __typename?: 'Product' }
+    & Pick<Product, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'description' | 'productAvailabileTo' | 'productAvailabileFrom' | 'basePrice' | 'barcode' | 'packSize' | 'discount' | 'image' | 'category' | 'status' | 'manufacturer' | 'tags'>
   )> }
 );
 
@@ -270,6 +334,38 @@ export const ChangePasswordDocument = gql`
 export function useChangePasswordMutation() {
   return Urql.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument);
 };
+export const CreateProductDocument = gql`
+    mutation CreateProduct($options: ProductInput!) {
+  createProduct(options: $options) {
+    errors {
+      field
+      message
+    }
+    product {
+      id
+      createdAt
+      updatedAt
+      title
+      description
+      productAvailabileTo
+      productAvailabileFrom
+      basePrice
+      barcode
+      packSize
+      discount
+      image
+      category
+      status
+      manufacturer
+      tags
+    }
+  }
+}
+    `;
+
+export function useCreateProductMutation() {
+  return Urql.useMutation<CreateProductMutation, CreateProductMutationVariables>(CreateProductDocument);
+};
 export const ForgotPasswordDocument = gql`
     mutation ForgotPassword($email: String!) {
   forgotPassword(email: $email)
@@ -320,6 +416,32 @@ export const MeDocument = gql`
 
 export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
+};
+export const ProductDocument = gql`
+    query Product($id: Int!) {
+  product(id: $id) {
+    id
+    createdAt
+    updatedAt
+    title
+    description
+    productAvailabileTo
+    productAvailabileFrom
+    basePrice
+    barcode
+    packSize
+    discount
+    image
+    category
+    status
+    manufacturer
+    tags
+  }
+}
+    `;
+
+export function useProductQuery(options: Omit<Urql.UseQueryArgs<ProductQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<ProductQuery>({ query: ProductDocument, ...options });
 };
 export const ProductsDocument = gql`
     query Products {

@@ -5,11 +5,11 @@ import { makeStyles } from "@material-ui/core/styles";
 import { withUrqlClient } from "next-urql";
 import React from "react";
 import Hero from "../src/components/product/hero";
-import {ProductCard} from "../src/components/product/productCard";
+import { ProductCard } from "../src/components/product/productCard";
 import Footer from "../src/components/ui/footer";
 import Header from "../src/components/ui/Header";
-import { createUrqlClient } from "../src/utils/createUrqlClient";
 import { useProductsQuery } from "../src/generated/graphql";
+import { createUrqlClient } from "../src/utils/createUrqlClient";
 
 const useStyles = makeStyles((theme) => ({
   icon: {
@@ -34,7 +34,7 @@ export const Products = () => {
           <Grid item key={product.id} xs={12} sm={6} md={4}>
             <ProductCard data={product}/>
           </Grid>
-        ))}34
+        ))}
       </>
     );
   }

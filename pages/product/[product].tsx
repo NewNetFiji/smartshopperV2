@@ -1,22 +1,17 @@
 import { Button, Container, LinearProgress } from "@material-ui/core";
 import Avatar from "@material-ui/core/Avatar";
-import Box from "@material-ui/core/Box";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import Grid from "@material-ui/core/Grid";
-import Link from "@material-ui/core/Link";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import { Field, Form, Formik } from "formik";
 import { TextField } from "formik-material-ui";
 import { withUrqlClient } from "next-urql";
-import NextLink from "next/link";
-import { useRouter } from "next/router";
-import React, { useState } from "react";
-import { Copyright } from "../src/components/ui/copyright";
-import { useForgotPasswordMutation } from "../src/generated/graphql";
-import { createUrqlClient } from "../src/utils/createUrqlClient";
-import StyledLink from "../src/components/ui/styledLink";
+import React from "react";
+import { createUrqlClient } from "../../src/utils/createUrqlClient";
+import { useGetIdFromUrl } from "../../src/utils/useGetIdFromUrl";
+
+
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -46,12 +41,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const ForgotPassword = ({}) => {
-  const router = useRouter();
+ const UpdateProduct  = ({  }) => {
   const classes = useStyles();
-  const [msg, setMsg] = useState(false);
-  const [, resetPassword] = useForgotPasswordMutation();
-  let done: any = null;
+  //const { {data:ProductQuery}  } = useGetIdFromUrl();
+  
 
   return (
     <Container component="main" maxWidth="xs">
@@ -65,16 +58,22 @@ export const ForgotPassword = ({}) => {
         </Typography>
         <Formik
           initialValues={{
-            email: "",
+            title: data?.product?.title,
+            description: data?.product?.description,
+            productAvailabileTo: data?.product?.productAvailabileTo,
+            productAvailabileFrom: data?.product?.productAvailabileFrom,
+            basePrice: data?.product?.basePrice,
+            barcode: data?.product?.barcode,
+            packSize: data?.product?.packSize,
+            discount: data?.product?.discount,
+            image: data?.product?.image,
+            category: data?.product?.category,
+            status: data?.product?.status,
+            manufacturer: data?.product?.manufacturer,
+            tags: data?.product?.tags,
           }}
           onSubmit={async (values, { setErrors }) => {
-            const response = await resetPassword({ email: values.email });
-
-            if (response.data?.forgotPassword) {
-              setMsg(true);
-            } else {
-              console.log(response);
-            }
+            
           }}
         >
           {({ isSubmitting }) => (
@@ -94,14 +93,7 @@ export const ForgotPassword = ({}) => {
 
               {isSubmitting && <LinearProgress />}
 
-              {msg ? (
-                <>
-                  <Typography variant="body2">
-                    An email will be sent to that account if it is registered
-                  </Typography>
-                  <br />
-                </>
-              ) : (
+              
                 <Button
                   type="submit"
                   fullWidth
@@ -109,29 +101,16 @@ export const ForgotPassword = ({}) => {
                   color="primary"
                   className={classes.submit}
                 >
-                  Request Reset Token
+                  Update
                 </Button>
-              )}
-              <Grid container>
-                <Grid item xs>
-                  <StyledLink route="/signIn" msg="Go to Sign-In Page" />
-                </Grid>
-                <Grid item>
-                  <StyledLink
-                    route="/register"
-                    msg="Don't have an account? Sign Up"
-                  />
-                </Grid>
-              </Grid>
+              
+              
             </Form>
           )}
         </Formik>
-      </div>
-      <Box mt={8}>
-        <Copyright />
-      </Box>
+      </div>     
     </Container>
   );
 };
 
-export default withUrqlClient(createUrqlClient)(ForgotPassword);
+export default withUrqlClient(createUrqlClient)(UpdateProduct);

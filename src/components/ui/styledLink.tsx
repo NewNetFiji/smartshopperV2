@@ -14,8 +14,7 @@ const useStyles = makeStyles((theme) => ({
   }));
 
 export const  StyledLink: React.FC<Props> = ({route, msg} )=> {
-    const classes = useStyles();
-    console.log(route, msg)
+    const classes = useStyles();    
   return (
     <React.Fragment>
       <NextLink href={route}>

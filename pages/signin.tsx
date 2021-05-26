@@ -5,7 +5,6 @@ import Checkbox from "@material-ui/core/Checkbox";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Grid from "@material-ui/core/Grid";
-import Link from "@material-ui/core/Link";
 import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
@@ -16,12 +15,11 @@ import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
 import React from "react";
 import { Copyright } from "../src/components/ui/copyright";
+import StyledLink from "../src/components/ui/styledLink";
 import { useLoginMutation } from "../src/generated/graphql";
 import { createUrqlClient } from "../src/utils/createUrqlClient";
 import { isServer } from "../src/utils/isServer";
 import { toErrorMap } from "../src/utils/toErrorMap";
-import NextLink from "next/link";
-import StyledLink from "../src/components/ui/styledLink";
 
 interface Values {
   email: string;

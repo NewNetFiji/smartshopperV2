@@ -4,7 +4,6 @@ import Box from "@material-ui/core/Box";
 import Container from "@material-ui/core/Container";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Grid from "@material-ui/core/Grid";
-import Link from "@material-ui/core/Link";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
@@ -14,12 +13,11 @@ import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
 import React from "react";
 import { Copyright } from "../src/components/ui/copyright";
+import StyledLink from "../src/components/ui/styledLink";
 import { useRegisterMutation } from "../src/generated/graphql";
 import { createUrqlClient } from "../src/utils/createUrqlClient";
 import { isServer } from "../src/utils/isServer";
 import { toErrorMap } from "../src/utils/toErrorMap";
-import NextLink from "next/link";
-import StyledLink from "../src/components/ui/styledLink";
 
 interface Values {
   email: string;
@@ -29,19 +27,6 @@ interface Values {
 }
 
 interface registerProps {}
-
-// function Copyright() {
-//   return (
-//     <Typography variant="body2" color="textSecondary" align="center">
-//       {"Copyright © "}
-//       <Link color="inherit" href="#">
-//         NewNet Pte Ltd
-//       </Link>{" "}
-//       {new Date().getFullYear()}
-//       {"."}
-//     </Typography>
-//   );
-// }
 
 const useStyles = makeStyles((theme) => ({
   paper: {
