@@ -1,0 +1,10 @@
+query getPublicVendor {
+  getPublicVendor {
+    id
+    name
+    address
+    tin
+    status
+    vendorType
+  }
+}

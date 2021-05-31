@@ -14,7 +14,10 @@ import { useRouter } from "next/router";
 import React from "react";
 import { Copyright } from "../src/components/ui/copyright";
 import StyledLink from "../src/components/ui/styledLink";
-import { useRegisterMutation } from "../src/generated/graphql";
+import {
+  useGetPublicVendorQuery,
+  useRegisterMutation,
+} from "../src/generated/graphql";
 import { createUrqlClient } from "../src/utils/createUrqlClient";
 import { isServer } from "../src/utils/isServer";
 import { toErrorMap } from "../src/utils/toErrorMap";
@@ -24,6 +27,7 @@ interface Values {
   firstName: string;
   lastName: string;
   password: string;
+  vendorId: number;
 }
 
 interface registerProps {}
@@ -52,6 +56,7 @@ export const Register: React.FC<registerProps> = ({}) => {
   const router = useRouter();
   const classes = useStyles();
   const [, register] = useRegisterMutation();
+  const [{ data }] = useGetPublicVendorQuery();
 
   return (
     <Container component="main" maxWidth="xs">
@@ -70,6 +75,7 @@ export const Register: React.FC<registerProps> = ({}) => {
             firstName: "",
             lastName: "",
             password: "",
+            vendorId: 99,
           }}
           validate={(values) => {
             const errors: Partial<Values> = {};
@@ -83,6 +89,9 @@ export const Register: React.FC<registerProps> = ({}) => {
             return errors;
           }}
           onSubmit={async (values, { setErrors }) => {
+            //get the public vendorId
+            values.vendorId = data?.getPublicVendor?.id as number;
+
             const response = await register({ options: values });
             if (response.data?.register.errors) {
               setErrors(toErrorMap(response.data.register.errors));

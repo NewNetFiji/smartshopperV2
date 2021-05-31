@@ -25,11 +25,15 @@ export type Mutation = {
   createProduct: ProductResponse;
   updateProduct?: Maybe<ProductResponse>;
   deleteProduct?: Maybe<Scalars['Boolean']>;
+  registerVendor: VendorResponse;
+  updateVendor?: Maybe<VendorResponse>;
+  deleteVendor?: Maybe<Scalars['Boolean']>;
   changePassword: UserResponse;
   forgotPassword: Scalars['Boolean'];
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
+  deleteUser?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -44,6 +48,21 @@ export type MutationUpdateProductArgs = {
 
 
 export type MutationDeleteProductArgs = {
+  id: Scalars['Float'];
+};
+
+
+export type MutationRegisterVendorArgs = {
+  options: VendorInput;
+};
+
+
+export type MutationUpdateVendorArgs = {
+  options: VendorInput;
+};
+
+
+export type MutationDeleteVendorArgs = {
   id: Scalars['Float'];
 };
 
@@ -69,18 +88,16 @@ export type MutationLoginArgs = {
   options: UsernamePasswordInput;
 };
 
-export type ProdError = {
-  __typename?: 'ProdError';
-  field: Scalars['String'];
-  message: Scalars['String'];
+
+export type MutationDeleteUserArgs = {
+  id: Scalars['Float'];
 };
 
 export type Product = {
   __typename?: 'Product';
   id: Scalars['Float'];
-  createdAt: Scalars['String'];
-  updatedAt: Scalars['String'];
   title: Scalars['String'];
+  points: Scalars['Float'];
   description?: Maybe<Scalars['String']>;
   productAvailabileTo?: Maybe<Scalars['String']>;
   productAvailabileFrom?: Maybe<Scalars['String']>;
@@ -93,10 +110,13 @@ export type Product = {
   status: Scalars['String'];
   manufacturer?: Maybe<Scalars['String']>;
   tags?: Maybe<Scalars['String']>;
+  vendorId: Scalars['Float'];
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
 };
 
 export type ProductInput = {
-  id: Scalars['Float'];
+  id?: Maybe<Scalars['Float']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   title?: Maybe<Scalars['String']>;
@@ -112,11 +132,12 @@ export type ProductInput = {
   status?: Maybe<Scalars['String']>;
   manufacturer?: Maybe<Scalars['String']>;
   tags?: Maybe<Scalars['String']>;
+  vendorId?: Maybe<Scalars['Float']>;
 };
 
 export type ProductResponse = {
   __typename?: 'ProductResponse';
-  errors?: Maybe<Array<ProdError>>;
+  errors?: Maybe<Array<FieldError>>;
   product?: Maybe<Product>;
 };
 
@@ -125,6 +146,7 @@ export type Query = {
   hello: Scalars['String'];
   products: Array<Product>;
   product?: Maybe<Product>;
+  getPublicVendor?: Maybe<Vendor>;
   me?: Maybe<User>;
 };
 
@@ -143,6 +165,7 @@ export type User = {
   lastName: Scalars['String'];
   userRole: Scalars['String'];
   status: Scalars['String'];
+  vendorId: Scalars['Float'];
 };
 
 export type UserResponse = {
@@ -156,6 +179,38 @@ export type UsernamePasswordInput = {
   firstName?: Maybe<Scalars['String']>;
   lastName?: Maybe<Scalars['String']>;
   password: Scalars['String'];
+  vendorId?: Maybe<Scalars['Float']>;
+};
+
+export type Vendor = {
+  __typename?: 'Vendor';
+  id: Scalars['Float'];
+  name: Scalars['String'];
+  address: Scalars['String'];
+  tin: Scalars['String'];
+  image: Scalars['String'];
+  status: Scalars['String'];
+  vendorType: Scalars['String'];
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+};
+
+export type VendorInput = {
+  id?: Maybe<Scalars['Float']>;
+  name?: Maybe<Scalars['String']>;
+  address?: Maybe<Scalars['String']>;
+  tin?: Maybe<Scalars['String']>;
+  image?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
+  vendorType?: Maybe<Scalars['String']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+};
+
+export type VendorResponse = {
+  __typename?: 'VendorResponse';
+  errors?: Maybe<Array<FieldError>>;
+  vendor?: Maybe<Vendor>;
 };
 
 export type RegularErrorFragment = (
@@ -165,7 +220,7 @@ export type RegularErrorFragment = (
 
 export type RegularUserFragment = (
   { __typename?: 'User' }
-  & Pick<User, 'id' | 'email' | 'status' | 'userRole' | 'firstName' | 'lastName'>
+  & Pick<User, 'id' | 'email' | 'status' | 'userRole' | 'firstName' | 'lastName' | 'vendorId'>
 );
 
 export type RegularUserResponseFragment = (
@@ -204,8 +259,8 @@ export type CreateProductMutation = (
   & { createProduct: (
     { __typename?: 'ProductResponse' }
     & { errors?: Maybe<Array<(
-      { __typename?: 'ProdError' }
-      & Pick<ProdError, 'field' | 'message'>
+      { __typename?: 'FieldError' }
+      & Pick<FieldError, 'field' | 'message'>
     )>>, product?: Maybe<(
       { __typename?: 'Product' }
       & Pick<Product, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'description' | 'productAvailabileTo' | 'productAvailabileFrom' | 'basePrice' | 'barcode' | 'packSize' | 'discount' | 'image' | 'category' | 'status' | 'manufacturer' | 'tags'>
@@ -257,6 +312,17 @@ export type RegisterMutation = (
   ) }
 );
 
+export type GetPublicVendorQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetPublicVendorQuery = (
+  { __typename?: 'Query' }
+  & { getPublicVendor?: Maybe<(
+    { __typename?: 'Vendor' }
+    & Pick<Vendor, 'id' | 'name' | 'address' | 'tin' | 'status' | 'vendorType'>
+  )> }
+);
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -300,6 +366,7 @@ export const RegularUserFragmentDoc = gql`
   userRole
   firstName
   lastName
+  vendorId
 }
     `;
 export const RegularErrorFragmentDoc = gql`
@@ -405,6 +472,22 @@ export const RegisterDocument = gql`
 
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
+};
+export const GetPublicVendorDocument = gql`
+    query getPublicVendor {
+  getPublicVendor {
+    id
+    name
+    address
+    tin
+    status
+    vendorType
+  }
+}
+    `;
+
+export function useGetPublicVendorQuery(options: Omit<Urql.UseQueryArgs<GetPublicVendorQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetPublicVendorQuery>({ query: GetPublicVendorDocument, ...options });
 };
 export const MeDocument = gql`
     query Me {
