@@ -5,10 +5,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import { withUrqlClient } from "next-urql";
 import React from "react";
 import Hero from "../src/components/product/hero";
-import { ProductCard } from "../src/components/product/productCard";
+import { ProductCard } from "../src/components/product/NewProdCard";
 import Footer from "../src/components/ui/footer";
 import Header from "../src/components/ui/Header";
-import { useProductsQuery } from "../src/generated/graphql";
+import { Product, useProductsQuery } from "../src/generated/graphql";
 import { createUrqlClient } from "../src/utils/createUrqlClient";
 
 const useStyles = makeStyles((theme) => ({
@@ -32,7 +32,7 @@ export const Products = () => {
       <>
         {data.products.map((product) => (
           <Grid item key={product.id} xs={12} sm={6} md={4}>
-            <ProductCard data={product}/>
+            <ProductCard data={product as Product}/>
           </Grid>
         ))}
       </>

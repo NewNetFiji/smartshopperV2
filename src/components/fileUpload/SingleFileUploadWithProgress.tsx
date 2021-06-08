@@ -33,8 +33,13 @@ export function SingleFileUploadWithProgress({
 }
 
 function uploadFile(file: File, onProgress: (percentage: number) => void) {
-  const url = 'https://api.cloudinary.com/v1_1/demo/image/upload';
-  const key = 'docs_upload_example_us_preset';
+  
+  //https://api.cloudinary.com/v1_1/demo/image/upload
+  //docs_upload_example_us_preset
+
+  //https://api.cloudinary.com/v1_1/<cloud name>/<resource_type>/upload
+  const url = 'https://api.cloudinary.com/v1_1/patrickqueet/image/upload';
+  const key = 'smartShopperFj';
 
   return new Promise<string>((res, rej) => {
     const xhr = new XMLHttpRequest();

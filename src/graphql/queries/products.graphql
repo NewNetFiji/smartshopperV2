@@ -8,8 +8,7 @@ query Products {
     productAvailabileTo
     productAvailabileFrom
     basePrice
-    discount
-    image
+    discount    
     category
     status
     manufacturer

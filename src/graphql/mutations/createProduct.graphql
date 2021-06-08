@@ -15,12 +15,18 @@ mutation CreateProduct($options: ProductInput!) {
       basePrice
       barcode
       packSize
-      discount
-      image
+      discount      
       category
       status
       manufacturer
       tags
+    }
+    images {
+      id
+      productId
+      url
+      updatedAt
+      createdAt
     }
   }
 }

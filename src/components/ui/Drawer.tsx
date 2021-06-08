@@ -18,7 +18,8 @@ import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import ChatIcon from "@material-ui/icons/Chat";
 import { useRouter } from "next/router";
 import { isServer } from "../../utils/isServer";
-
+import capitalizeFirstLetter from "../../utils/capitalizeFirstLetter";
+import AppMenu from "../menu/AppMenu";
 interface drawerProps {
   data: MeQuery | undefined;
 }
@@ -66,10 +67,6 @@ function getInitials(data: User) {
   return firstChar;
 }
 
-function capitalizeFirstLetter(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
 function getName(user: User) {
   if (!user) {
     return "";
@@ -89,13 +86,15 @@ export const Drawer: React.FC<drawerProps> = ({ data }) => {
   const [state, setState] = useState(false);
   const initials = getInitials(data?.me as User);
 
-  const handleClick = () => {
+  const handleCloseClick = () => {
     logout();
-    if (!isServer()) { router.push("/") };
+    if (!isServer()) {
+      router.push("/");
+    }
   };
   const name: string = getName(data?.me as User);
 
-  const toggleDrawer =
+  const handleClick =
     (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
       if (
         event &&
@@ -108,13 +107,15 @@ export const Drawer: React.FC<drawerProps> = ({ data }) => {
 
       setState(open);
     };
+  
 
   const list = () => (
     <div
+      id="drawerMenu"
       className={classes.list}
       role="presentation"
-      onClick={toggleDrawer(false)}
-      onKeyDown={toggleDrawer(false)}
+      // onClick={handleClick(false)}
+      // onKeyDown={handleClick(false)}
     >
       <Divider />
       <div className={classes.face}>
@@ -126,23 +127,10 @@ export const Drawer: React.FC<drawerProps> = ({ data }) => {
         </div>
       </div>
       <Divider />
-      <List>
-        <ListItem button key="Profile">
-          <ListItemIcon>
-            <AccountCircleIcon />
-          </ListItemIcon>
-          <ListItemText primary="Profile" />
-        </ListItem>
-        <ListItem button key="Messages">
-          <ListItemIcon>
-            <ChatIcon />
-          </ListItemIcon>
-          <ListItemText primary="Messages" />
-        </ListItem>
-      </List>
+      <AppMenu />
       <Divider />
       <List>
-        <ListItem onClick={handleClick} button key="Logout">
+        <ListItem onClick={handleCloseClick} button key="Logout">
           <ListItemIcon>
             <ExitToAppIcon />
           </ListItemIcon>
@@ -156,14 +144,14 @@ export const Drawer: React.FC<drawerProps> = ({ data }) => {
   return (
     <div>
       <React.Fragment>
-        <Avatar className={classes.avatar} onClick={toggleDrawer(true)}>
+        <Avatar className={classes.avatar} onClick={handleClick(true)}>
           {initials}
         </Avatar>
         <SwipeableDrawer
           anchor="right"
           open={state}
-          onClose={toggleDrawer(false)}
-          onOpen={toggleDrawer(true)}
+          onClose={handleClick(false)}
+          onOpen={handleClick(true)}
         >
           {list()}
         </SwipeableDrawer>

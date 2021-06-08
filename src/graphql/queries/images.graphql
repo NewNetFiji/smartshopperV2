@@ -1,0 +1,6 @@
+query Images($productId: Int!){
+  images(productId: $productId) {
+    id
+    url    
+  }
+}
