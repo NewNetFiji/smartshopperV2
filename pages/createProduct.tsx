@@ -42,8 +42,8 @@ interface Values {
   discount: number;
 
   //availability
-  productAvailabileTo: string;
-  productAvailabileFrom: string;
+  productAvailableTo: string;
+  productAvailableFrom: string;
 
   //meta data
   barcode: string;
@@ -98,8 +98,8 @@ export const CreateProduct: React.FC<registerProps> = ({}) => {
   const initialValues: Values = {
     title: "",
     description: "",
-    productAvailabileTo: "",
-    productAvailabileFrom: "",
+    productAvailableTo: "",
+    productAvailableFrom: "",
     basePrice: 0,
     barcode: "",
     packSize: "",

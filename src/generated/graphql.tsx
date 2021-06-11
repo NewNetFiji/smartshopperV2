@@ -22,11 +22,11 @@ export type FieldError = {
 
 export type Image = {
   __typename?: 'Image';
-  id: Scalars['Float'];
-  url: Scalars['String'];
-  productId: Scalars['Float'];
-  createdAt: Scalars['String'];
-  updatedAt: Scalars['String'];
+  id?: Maybe<Scalars['Float']>;
+  url?: Maybe<Scalars['String']>;
+  productId?: Maybe<Scalars['Float']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
 };
 
 export type ImageInput = {
@@ -140,8 +140,8 @@ export type Product = {
   title: Scalars['String'];
   points: Scalars['Float'];
   description?: Maybe<Scalars['String']>;
-  productAvailabileTo?: Maybe<Scalars['String']>;
-  productAvailabileFrom?: Maybe<Scalars['String']>;
+  productAvailableTo?: Maybe<Scalars['String']>;
+  productAvailableFrom?: Maybe<Scalars['String']>;
   basePrice?: Maybe<Scalars['Float']>;
   barcode?: Maybe<Scalars['String']>;
   packSize?: Maybe<Scalars['String']>;
@@ -151,6 +151,8 @@ export type Product = {
   manufacturer?: Maybe<Scalars['String']>;
   tags?: Maybe<Scalars['String']>;
   vendorId: Scalars['Float'];
+  vendor: Vendor;
+  images?: Maybe<Array<Image>>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
 };
@@ -159,9 +161,9 @@ export type ProductInput = {
   id?: Maybe<Scalars['Float']>;
   title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
-  images?: Maybe<Array<Scalars['String']>>;
-  productAvailabileTo?: Maybe<Scalars['String']>;
-  productAvailabileFrom?: Maybe<Scalars['String']>;
+  imageUrl?: Maybe<Array<Scalars['String']>>;
+  productAvailableTo?: Maybe<Scalars['String']>;
+  productAvailableFrom?: Maybe<Scalars['String']>;
   basePrice?: Maybe<Scalars['Float']>;
   barcode?: Maybe<Scalars['String']>;
   packSize?: Maybe<Scalars['String']>;
@@ -185,20 +187,36 @@ export type ProductResponse = {
 export type Query = {
   __typename?: 'Query';
   hello: Scalars['String'];
+  fullProducts: Array<Product>;
   products: Array<Product>;
   product?: Maybe<Product>;
   getPublicVendor?: Maybe<Vendor>;
   me?: Maybe<User>;
+  image?: Maybe<Image>;
   images?: Maybe<Array<Image>>;
 };
 
 
+export type QueryFullProductsArgs = {
+  vendorId?: Maybe<Scalars['Int']>;
+  cursor?: Maybe<Scalars['String']>;
+  limit: Scalars['Int'];
+};
+
+
 export type QueryProductsArgs = {
-  vendorId?: Maybe<Scalars['Float']>;
+  vendorId?: Maybe<Scalars['Int']>;
+  cursor?: Maybe<Scalars['String']>;
+  limit: Scalars['Int'];
 };
 
 
 export type QueryProductArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryImageArgs = {
   id: Scalars['Int'];
 };
 
@@ -315,7 +333,7 @@ export type CreateProductMutation = (
       & Pick<FieldError, 'field' | 'message'>
     )>>, product?: Maybe<(
       { __typename?: 'Product' }
-      & Pick<Product, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'description' | 'productAvailabileTo' | 'productAvailabileFrom' | 'basePrice' | 'barcode' | 'packSize' | 'discount' | 'category' | 'status' | 'manufacturer' | 'tags'>
+      & Pick<Product, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'description' | 'productAvailableTo' | 'productAvailableFrom' | 'basePrice' | 'barcode' | 'packSize' | 'discount' | 'category' | 'status' | 'manufacturer' | 'tags'>
     )>, images?: Maybe<Array<(
       { __typename?: 'Image' }
       & Pick<Image, 'id' | 'productId' | 'url' | 'updatedAt' | 'createdAt'>
@@ -367,6 +385,28 @@ export type RegisterMutation = (
   ) }
 );
 
+export type FullProductsQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  cursor?: Maybe<Scalars['String']>;
+  vendorId?: Maybe<Scalars['Int']>;
+}>;
+
+
+export type FullProductsQuery = (
+  { __typename?: 'Query' }
+  & { fullProducts: Array<(
+    { __typename?: 'Product' }
+    & Pick<Product, 'id' | 'points' | 'createdAt' | 'updatedAt' | 'title' | 'description' | 'productAvailableTo' | 'productAvailableFrom' | 'basePrice' | 'packSize' | 'discount' | 'category' | 'status' | 'manufacturer' | 'tags' | 'vendorId'>
+    & { vendor: (
+      { __typename?: 'Vendor' }
+      & Pick<Vendor, 'id' | 'image' | 'name'>
+    ), images?: Maybe<Array<(
+      { __typename?: 'Image' }
+      & Pick<Image, 'id' | 'url' | 'productId' | 'createdAt' | 'updatedAt'>
+    )>> }
+  )> }
+);
+
 export type GetPublicVendorQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -411,18 +451,22 @@ export type ProductQuery = (
   { __typename?: 'Query' }
   & { product?: Maybe<(
     { __typename?: 'Product' }
-    & Pick<Product, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'description' | 'productAvailabileTo' | 'productAvailabileFrom' | 'basePrice' | 'barcode' | 'packSize' | 'discount' | 'category' | 'status' | 'manufacturer' | 'tags'>
+    & Pick<Product, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'description' | 'productAvailableTo' | 'productAvailableFrom' | 'basePrice' | 'barcode' | 'packSize' | 'discount' | 'category' | 'status' | 'manufacturer' | 'tags'>
   )> }
 );
 
-export type ProductsQueryVariables = Exact<{ [key: string]: never; }>;
+export type ProductsQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  cursor?: Maybe<Scalars['String']>;
+  vendorId?: Maybe<Scalars['Int']>;
+}>;
 
 
 export type ProductsQuery = (
   { __typename?: 'Query' }
   & { products: Array<(
     { __typename?: 'Product' }
-    & Pick<Product, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'description' | 'productAvailabileTo' | 'productAvailabileFrom' | 'basePrice' | 'discount' | 'category' | 'status' | 'manufacturer' | 'tags'>
+    & Pick<Product, 'id' | 'vendorId' | 'points' | 'createdAt' | 'updatedAt' | 'title' | 'description' | 'productAvailableTo' | 'productAvailableFrom' | 'basePrice' | 'discount' | 'category' | 'status' | 'manufacturer' | 'tags'>
   )> }
 );
 
@@ -482,8 +526,8 @@ export const CreateProductDocument = gql`
       updatedAt
       title
       description
-      productAvailabileTo
-      productAvailabileFrom
+      productAvailableTo
+      productAvailableFrom
       basePrice
       barcode
       packSize
@@ -547,6 +591,44 @@ export const RegisterDocument = gql`
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
 };
+export const FullProductsDocument = gql`
+    query FullProducts($limit: Int!, $cursor: String, $vendorId: Int) {
+  fullProducts(cursor: $cursor, limit: $limit, vendorId: $vendorId) {
+    id
+    points
+    createdAt
+    updatedAt
+    title
+    description
+    productAvailableTo
+    productAvailableFrom
+    basePrice
+    packSize
+    discount
+    category
+    status
+    manufacturer
+    tags
+    vendorId
+    vendor {
+      id
+      image
+      name
+    }
+    images {
+      id
+      url
+      productId
+      createdAt
+      updatedAt
+    }
+  }
+}
+    `;
+
+export function useFullProductsQuery(options: Omit<Urql.UseQueryArgs<FullProductsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<FullProductsQuery>({ query: FullProductsDocument, ...options });
+};
 export const GetPublicVendorDocument = gql`
     query getPublicVendor {
   getPublicVendor {
@@ -594,8 +676,8 @@ export const ProductDocument = gql`
     updatedAt
     title
     description
-    productAvailabileTo
-    productAvailabileFrom
+    productAvailableTo
+    productAvailableFrom
     basePrice
     barcode
     packSize
@@ -612,15 +694,17 @@ export function useProductQuery(options: Omit<Urql.UseQueryArgs<ProductQueryVari
   return Urql.useQuery<ProductQuery>({ query: ProductDocument, ...options });
 };
 export const ProductsDocument = gql`
-    query Products {
-  products {
+    query Products($limit: Int!, $cursor: String, $vendorId: Int) {
+  products(cursor: $cursor, limit: $limit, vendorId: $vendorId) {
     id
+    vendorId
+    points
     createdAt
     updatedAt
     title
     description
-    productAvailabileTo
-    productAvailabileFrom
+    productAvailableTo
+    productAvailableFrom
     basePrice
     discount
     category

@@ -10,8 +10,8 @@ mutation CreateProduct($options: ProductInput!) {
       updatedAt
       title
       description
-      productAvailabileTo
-      productAvailabileFrom
+      productAvailableTo
+      productAvailableFrom
       basePrice
       barcode
       packSize

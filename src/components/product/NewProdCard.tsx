@@ -1,21 +1,17 @@
-import { Button } from "@material-ui/core";
+import { Badge, Button, Grid } from "@material-ui/core";
 import Avatar from "@material-ui/core/Avatar";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
-import CardHeader from "@material-ui/core/CardHeader";
-import { red } from "@material-ui/core/colors";
 import IconButton from "@material-ui/core/IconButton";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
+import AddShoppingCartIcon from "@material-ui/icons/AddShoppingCart";
 import FavoriteIcon from "@material-ui/icons/Favorite";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
-import ShareIcon from "@material-ui/icons/Share";
 import React from "react";
 import Carousel from "react-material-ui-carousel";
-import { Product, useImagesQuery } from "../../generated/graphql";
+import { Product } from "../../generated/graphql";
 import capitalizeFirstLetter from "../../utils/capitalizeFirstLetter";
-import AddShoppingCartIcon from "@material-ui/icons/AddShoppingCart";
 
 interface cardProps {
   data: Product;
@@ -34,6 +30,10 @@ const useStyles = makeStyles((theme: Theme) =>
       width: "300px",
       //paddingTop: '56.25%', // 16:9
     },
+    noMedia: {
+      height: "188px",
+      width: "300px",
+    },
     expand: {
       transform: "rotate(0deg)",
       marginLeft: "auto",
@@ -45,7 +45,9 @@ const useStyles = makeStyles((theme: Theme) =>
       transform: "rotate(180deg)",
     },
     avatar: {
-      backgroundColor: red[500],
+      // backgroundColor: red[500],
+      width: theme.spacing(5),
+      height: theme.spacing(5),
     },
     namePriceArea: {
       display: "flex",
@@ -54,33 +56,35 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     button: {
       margin: theme.spacing(1),
+      marginLeft: "auto",
+    },
+    badge: {
+      color: "#ec407a",
     },
   })
 );
 
-const getImages = (prodId: number) => {
-  const [{ data }] = useImagesQuery({
-    variables: { productId: prodId },
-  });
+// const getImages = (prodId: number) => {
+//   const [{ data }] = useImagesQuery({
+//     variables: { productId: prodId },
+//   });
 
-  if (data?.images) {
-    return data.images;
-  } else {
-    return [];
-  }
-};
+//   if (data?.images) {
+//     return data.images;
+//   } else {
+//     return [];
+//   }
+// };
 
 export const ProductCard: React.FC<cardProps> = ({ data }) => {
   const classes = useStyles();
-  const images = getImages(data.id);
+  // const images = getImages(data.id);
 
   return (
     <Card className={classes.root}>
-      <CardHeader
+      {/* <CardHeader
         avatar={
-          <Avatar aria-label="recipe" className={classes.avatar}>
-            {data.vendorId}
-          </Avatar>
+          <Avatar aria-label="Product" className={classes.avatar} src={data.vendor.image} />
         }
         action={
           <IconButton aria-label="settings">
@@ -89,40 +93,62 @@ export const ProductCard: React.FC<cardProps> = ({ data }) => {
         }
         title={data.title}
         subheader={data.packSize}
-      />
-      {images.length > 0 ? (
+      /> */}
+      {data.images?.length ? (
         <Carousel autoPlay={false}>
-          {images.map((image, i) => (
+          {data.images.map((image, i) => (
             <img
               className={classes.media}
               key={i}
-              alt={image.id.toString()}
-              src={image.url}
+              alt={image.id!.toString()}
+              src={image.url!}
             />
           ))}
         </Carousel>
-      ) : (        
+      ) : (
         <img
-          className={classes.media}
+          className={classes.noMedia}
           alt="No Image"
           src="https://res.cloudinary.com/patrickqueet/image/upload/v1623181676/smartShopper/noImage_ftosgr.jpg"
-        />        
+        />
       )}
 
       <CardContent className={classes.namePriceArea}>
-        <Typography variant="h5" color="textSecondary" component="p">
-          {capitalizeFirstLetter(data.title)}
-        </Typography>
-        <Typography variant="h6" color="textSecondary" component="p">
-          $ {data.basePrice}
-        </Typography>
+        <Grid container>
+          <Grid item xs={6}>
+            <Typography variant="h5" color="textSecondary" component="p">
+              {capitalizeFirstLetter(data.title)}
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <Typography
+              align="right"
+              variant="h6"
+              color="textSecondary"
+              component="p"
+            >
+              $ {data.basePrice}
+            </Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant="body2" color="textSecondary" component="p">
+              Pack Size: {data.packSize}
+            </Typography>
+          </Grid>
+        </Grid>
       </CardContent>
       <CardActions disableSpacing>
-        <IconButton aria-label="add to favorites">
-          <FavoriteIcon />
+        <IconButton aria-label="like">
+          <Badge badgeContent={data.points} className={classes.badge}>
+            <FavoriteIcon />
+          </Badge>
         </IconButton>
-        <IconButton aria-label="share">
-          <ShareIcon />
+        <IconButton aria-label="vendor">
+          <Avatar
+            aria-label="Product"
+            className={classes.avatar}
+            src={data.vendor.image}
+          />
         </IconButton>
         <Button
           variant="contained"

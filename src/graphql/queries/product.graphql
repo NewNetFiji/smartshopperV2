@@ -5,8 +5,8 @@ query Product($id: Int! ){
     updatedAt
     title
     description
-    productAvailabileTo
-    productAvailabileFrom
+    productAvailableTo
+    productAvailableFrom
     basePrice
     barcode
     packSize

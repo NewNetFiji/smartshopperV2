@@ -9,7 +9,8 @@ interface Props{
 
 const useStyles = makeStyles((theme) => ({
     link: {
-      cursor: "pointer"
+      cursor: "pointer",
+      color: theme.palette.secondary.main
     },
   }));
 

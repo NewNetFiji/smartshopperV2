@@ -8,11 +8,11 @@ import Tab from "@material-ui/core/Tab";
 import Button from "@material-ui/core/Button";
 import { useMeQuery } from "../../generated/graphql";
 import { deepPurple } from "@material-ui/core/colors";
-import { Box, Typography } from "@material-ui/core";
+import { Box, Slide, Typography } from "@material-ui/core";
 import { Drawer } from "../ui/Drawer";
 import { isServer } from "../../utils/isServer";
 import { useRouter } from "next/router";
-
+import StyledLink from "./styledLink";
 
 interface Props {
   children: React.ReactElement;
@@ -29,16 +29,15 @@ const routes = [
 // Shared State
 let lastValue: number;
 
-function ElevationScroll(props: Props) {
+function HideOnScroll(props: Props) {
   const { children } = props;
-  const trigger = useScrollTrigger({
-    disableHysteresis: true,
-    threshold: 0,
-  });
+  const trigger = useScrollTrigger();
 
-  return React.cloneElement(children, {
-    elevation: trigger ? 4 : 0,
-  });
+  return (
+    <Slide appear={false} direction="down" in={!trigger}>
+      {children}
+    </Slide>
+  );
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -86,7 +85,7 @@ const useStyles = makeStyles((theme) => ({
   },
   tabContainer: {
     marginLeft: "auto",
-    overflowX: 'auto',
+    overflowX: "auto",
   },
   tab: {
     ...theme.typography.tab,
@@ -98,6 +97,10 @@ const useStyles = makeStyles((theme) => ({
     marginRight: "25px",
     color: theme.palette.getContrastText(deepPurple[500]),
     backgroundColor: deepPurple[500],
+  },
+  headerButtons: {
+    marginLeft: "auto",
+    margin: theme.spacing(2),    
   },
   imageIcon: {
     height: "100%",
@@ -142,18 +145,49 @@ export default function Header() {
     //data is loading
   } else if (!data?.me) {
     //user is not loged in
-    if (!isServer()) { router.push("/signIn") };
+    body = (
+      <div className={classes.headerButtons}>
+        <Button
+          className={classes.headerButtons}
+          variant="outlined"
+          color="secondary"
+          onClick={() => router.push("/signIn")}
+        >
+          Sign In
+        </Button>
+        <StyledLink route="/register" msg="Don't have an account? Signup" />
+        
+      </div>
+    );
   } else {
     //user Is loged in
-    body = <Drawer data={data} />;
+    body = (
+      <>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          className={classes.tabContainer}
+        >
+          {routes.map((route, value) => (
+            <Tab className={classes.tab} key={value} label={route.title} />
+          ))}
+        </Tabs>
+        <Drawer data={data} />
+      </>
+    );
   }
 
   return (
     <>
-      <ElevationScroll>
+      <HideOnScroll>
         <AppBar position="fixed">
           <Toolbar disableGutters>
-            <Button onClick={()=>{router.push("/")}} className={classes.logoContainer}>
+            <Button
+              onClick={() => {
+                router.push("/");
+              }}
+              className={classes.logoContainer}
+            >
               <div className={classes.logo}>
                 <svg
                   height="100%"
@@ -177,20 +211,11 @@ export default function Header() {
                 </Typography>
               </Box>
             </Button>
-            <Tabs
-              value={value}
-              onChange={handleChange}
-              className={classes.tabContainer}
-            >
-              {routes.map((route, value) => (
-                <Tab className={classes.tab} key={value} label={route.title} />
-              ))}
-            </Tabs>
 
             {body}
           </Toolbar>
         </AppBar>
-      </ElevationScroll>
+      </HideOnScroll>
       <div className={classes.toolbarMargin} />
     </>
   );
