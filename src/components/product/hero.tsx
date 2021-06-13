@@ -96,8 +96,7 @@ export default function Hero() {
   ];
 
   const settings = {
-    className: "center",
-    arrows: true,
+    className: "center",    
     centerMode: true,
     infinite: true,
     centerPadding: "60px",

@@ -13,6 +13,7 @@ import { Drawer } from "../ui/Drawer";
 import { isServer } from "../../utils/isServer";
 import { useRouter } from "next/router";
 import StyledLink from "./styledLink";
+import { ClientOnly } from "../../utils/ClientOnly";
 
 interface Props {
   children: React.ReactElement;
@@ -100,7 +101,7 @@ const useStyles = makeStyles((theme) => ({
   },
   headerButtons: {
     marginLeft: "auto",
-    margin: theme.spacing(2),    
+    margin: theme.spacing(2),
   },
   imageIcon: {
     height: "100%",
@@ -156,7 +157,6 @@ export default function Header() {
           Sign In
         </Button>
         <StyledLink route="/register" msg="Don't have an account? Signup" />
-        
       </div>
     );
   } else {
@@ -179,44 +179,46 @@ export default function Header() {
 
   return (
     <>
-      <HideOnScroll>
-        <AppBar position="fixed">
-          <Toolbar disableGutters>
-            <Button
-              onClick={() => {
-                router.push("/");
-              }}
-              className={classes.logoContainer}
-            >
-              <div className={classes.logo}>
-                <svg
-                  height="100%"
-                  viewBox="0 0 115 165"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M0 26V0L48.925 39V28.5C49.3647 18.5 59.0031 10 63.7674 7C66.3327 4.66667 75.7512 1 92.9024 5C110.054 9 114.341 22.3333 114.341 28.5V114.5L92.9024 99V28.5C84.5467 18.5 75.1282 24.3333 71.4634 28.5V83.5L0 26Z"
-                    fill="#94B91B"
-                  />
-                  <path
-                    d="M114.341 138.5V164.5L65.4165 125.5V136C64.9767 146 55.3383 154.5 50.5741 157.5C48.0088 159.833 38.5902 163.5 21.439 159.5C4.2878 155.5 0 142.167 0 136V50L21.439 65.5V136C29.7947 146 39.2133 140.167 42.8781 136V81L114.341 138.5Z"
-                    fill="#00589F"
-                  />
-                </svg>
-              </div>
-              <Box className={classes.logoTxtContainer}>
-                <Typography className={classes.logoText}>
-                  Smart Shopper Fj
-                </Typography>
-              </Box>
-            </Button>
+      <ClientOnly>
+        <HideOnScroll>
+          <AppBar position="fixed">
+            <Toolbar disableGutters>
+              <Button
+                onClick={() => {
+                  router.push("/");
+                }}
+                className={classes.logoContainer}
+              >
+                <div className={classes.logo}>
+                  <svg
+                    height="100%"
+                    viewBox="0 0 115 165"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M0 26V0L48.925 39V28.5C49.3647 18.5 59.0031 10 63.7674 7C66.3327 4.66667 75.7512 1 92.9024 5C110.054 9 114.341 22.3333 114.341 28.5V114.5L92.9024 99V28.5C84.5467 18.5 75.1282 24.3333 71.4634 28.5V83.5L0 26Z"
+                      fill="#94B91B"
+                    />
+                    <path
+                      d="M114.341 138.5V164.5L65.4165 125.5V136C64.9767 146 55.3383 154.5 50.5741 157.5C48.0088 159.833 38.5902 163.5 21.439 159.5C4.2878 155.5 0 142.167 0 136V50L21.439 65.5V136C29.7947 146 39.2133 140.167 42.8781 136V81L114.341 138.5Z"
+                      fill="#00589F"
+                    />
+                  </svg>
+                </div>
+                <Box className={classes.logoTxtContainer}>
+                  <Typography  className={classes.logoText}>
+                    Smart Shopper Fj
+                  </Typography>
+                </Box>
+              </Button>
 
-            {body}
-          </Toolbar>
-        </AppBar>
-      </HideOnScroll>
-      <div className={classes.toolbarMargin} />
+              {body}
+            </Toolbar>
+          </AppBar>
+        </HideOnScroll>
+        <div className={classes.toolbarMargin} />
+      </ClientOnly>
     </>
   );
 }

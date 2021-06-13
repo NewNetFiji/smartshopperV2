@@ -187,6 +187,7 @@ export type ProductResponse = {
 export type Query = {
   __typename?: 'Query';
   hello: Scalars['String'];
+  countProducts: Scalars['Int'];
   fullProducts: Array<Product>;
   products: Array<Product>;
   product?: Maybe<Product>;
@@ -383,6 +384,14 @@ export type RegisterMutation = (
     { __typename?: 'UserResponse' }
     & RegularUserResponseFragment
   ) }
+);
+
+export type CountProductsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CountProductsQuery = (
+  { __typename?: 'Query' }
+  & Pick<Query, 'countProducts'>
 );
 
 export type FullProductsQueryVariables = Exact<{
@@ -590,6 +599,15 @@ export const RegisterDocument = gql`
 
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
+};
+export const CountProductsDocument = gql`
+    query CountProducts {
+  countProducts
+}
+    `;
+
+export function useCountProductsQuery(options: Omit<Urql.UseQueryArgs<CountProductsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<CountProductsQuery>({ query: CountProductsDocument, ...options });
 };
 export const FullProductsDocument = gql`
     query FullProducts($limit: Int!, $cursor: String, $vendorId: Int) {

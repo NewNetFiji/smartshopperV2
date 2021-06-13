@@ -1,10 +1,10 @@
 import {
+  Backdrop,
   Button,
-  LinearProgress,
-  InputAdornment,
-  OutlinedInput,
-  InputLabel,
+  CircularProgress,
   FormControl,
+  InputAdornment,
+  LinearProgress,
 } from "@material-ui/core";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
@@ -19,23 +19,26 @@ import { Field, Form, Formik } from "formik";
 import { TextField } from "formik-material-ui";
 import { withUrqlClient } from "next-urql";
 import React, { useState } from "react";
-import { ImageUploadField, uploadableFile } from "../src/components/fileUpload/ImageUploadField";
+import { array, object, string } from "yup";
+import {
+  ImageUploadField,
+  uploadableFile,
+} from "../src/components/fileUpload/ImageUploadField";
+import Header from "../src/components/ui/Header";
 import { useCreateProductMutation, useMeQuery } from "../src/generated/graphql";
+import { clean } from "../src/utils/clean";
 import { createUrqlClient } from "../src/utils/createUrqlClient";
+import DisplayModal, { modalProps } from "../src/utils/DisplayModal";
 import { isServer } from "../src/utils/isServer";
 import { toErrorMap } from "../src/utils/toErrorMap";
-import { array, object, string } from 'yup';
-import { AlertNotice } from "../src/components/ui/AlertNotice";
-import Header from "../src/components/ui/Header";
 
 interface Values {
   //basic descriptors
   title: string;
   description: string;
   packSize: string;
-   //images
-   images: string[];
-  
+  //images
+  imageUrl: string[];
 
   //pricing
   basePrice: number;
@@ -54,8 +57,6 @@ interface Values {
   //hidden fields
   vendorId: number;
   files: uploadableFile[];
-
- 
 }
 
 interface registerProps {}
@@ -86,15 +87,37 @@ const useStyles = makeStyles((theme) => ({
   },
   heading: {
     fontSize: theme.typography.pxToRem(15),
-    fontWeight: theme.typography.fontWeightRegular,
+    fontWeight: theme.typography.fontWeightBold,
+  },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: "#fff",
+  },
+  mr4: {
+    marginRight: 4,
   },
 }));
+
+
 
 export const CreateProduct: React.FC<registerProps> = ({}) => {
   const classes = useStyles();
   const [, createProduct] = useCreateProductMutation();
-  const [{ data }] = useMeQuery();
-  const [flag, showAlert] = useState(false)
+  const [{ data: meData }] = useMeQuery();
+  const [key, setKey] = useState(Math.random());
+  const [expanded, setExpanded] = useState({
+    price: false,
+    availability: false,
+    metaData: false,
+  });
+  const [loading, setLoading] = useState(false);
+  const [modalSettings, setModal] = useState<modalProps>({
+    title: "",
+    message: "",
+    show: false,
+    type: "success"
+  });
+
   const initialValues: Values = {
     title: "",
     description: "",
@@ -103,13 +126,43 @@ export const CreateProduct: React.FC<registerProps> = ({}) => {
     basePrice: 0,
     barcode: "",
     packSize: "",
-    discount: 0,           
+    discount: 0,
     category: "",
     manufacturer: "",
     tags: "",
     vendorId: 1,
-    images: [],
-    files: []
+    imageUrl: [],
+    files: [],
+  };
+
+  function handlePriceAccordianClick() {
+    if (expanded.price) {
+      setExpanded({ ...expanded, price: false });
+    } else {
+      setExpanded({ ...expanded, price: true });
+    }
+  }
+  function handleAvailAccordianClick() {
+    if (expanded.availability) {
+      setExpanded({ ...expanded, availability: false });
+    } else {
+      setExpanded({ ...expanded, availability: true });
+    }
+  }
+  function handleMetaAccordianClick() {
+    if (expanded.metaData) {
+      setExpanded({ ...expanded, metaData: false });
+    } else {
+      setExpanded({ ...expanded, metaData: true });
+    }
+  }
+
+  function roundToTwo(num: number) {
+    return Math.round((num + Number.EPSILON) * 100) / 100;
+  }
+
+  function handleModal(prop: boolean) {
+    setModal({ ...modalSettings, show: prop });
   }
 
   return (
@@ -130,30 +183,64 @@ export const CreateProduct: React.FC<registerProps> = ({}) => {
               })
             ),
           })}
-          onSubmit={async (values, { setErrors, resetForm }) => {            
-            //get the public vendorId
-            values.vendorId = data?.me?.vendorId as number;
-                        
-            values.images = values.files.map(a => a.url) as string[];
-            const {files, ...rest} = values
-            
-            const response = await createProduct({ options: rest });
-            if (response.data?.createProduct.errors) {
-              setErrors(toErrorMap(response.data.createProduct.errors));
-            } else if (response.data?.createProduct.product) {
+          onSubmit={async (values, { setErrors, resetForm }) => {
+            setLoading(true);
+
+            values.vendorId = meData?.me?.vendorId as number;
+            values.imageUrl = values.files.map((a) => a.url) as string[];
+            values.basePrice = roundToTwo(values.basePrice);
+
+            const { files, ...rest } = values;
+            const cleanedProductObj = clean(rest);
+
+            const { data, error } = await createProduct({
+              options: cleanedProductObj,
+            });
+            if (data?.createProduct.errors) {
+              setErrors(toErrorMap(data.createProduct.errors));
+            } else if (data?.createProduct.product) {
               if (!isServer()) {
-                showAlert(true)
+                setModal({
+                  title: "Create Product",
+                  message: "Successfully created Product!",
+                  show: true,
+                  type: "success"
+                });
+                console.log("Success!");
+
+                //reset form
+                setKey(Math.random());
+                setExpanded({
+                  price: false,
+                  metaData: false,
+                  availability: false,
+                });
                 resetForm({});
-                
               }
+            } else if (error) {
+              setModal({
+                title: "Create Product",
+                message:
+                  "There were some Errors in creating your Product. Please Contact Support.",
+                show: true,
+                type: "error"
+              });
+              console.log("error: ", error.message);
+              resetForm({});
             }
+            setLoading(false);
           }}
         >
-          {({  isSubmitting  }) => (
-            
+          {({ isSubmitting }) => (
             <Form className={classes.form}>
               <Grid container spacing={2}>
-              {flag && <AlertNotice showAlert={showAlert}/>}
+                {/* {flag && <AlertNotice showAlert={showAlert} />} */}
+                <DisplayModal
+                  title={modalSettings.title}
+                  message={modalSettings.message}
+                  show={modalSettings.show}
+                  type={modalSettings.type}
+                />
                 <Grid item sm={12}>
                   <Field
                     component={TextField}
@@ -191,14 +278,15 @@ export const CreateProduct: React.FC<registerProps> = ({}) => {
                   />
                 </Grid>
                 <Grid item sm={12}>
-                  <ImageUploadField name="files" />
+                  <ImageUploadField key={key} name="files" />
                 </Grid>
-                <Grid item sm={12}>
-                  
-                </Grid>
+                <Grid item sm={12}></Grid>
                 {/* Pricing */}
                 <Grid item xs={12}>
-                  <Accordion>
+                  <Accordion
+                    onClick={handlePriceAccordianClick}
+                    expanded={expanded.price}
+                  >
                     <AccordionSummary
                       expandIcon={<ExpandMoreIcon />}
                       aria-controls="panel1a-content"
@@ -209,38 +297,57 @@ export const CreateProduct: React.FC<registerProps> = ({}) => {
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      <Grid item xs={12}>
-                        <FormControl fullWidth variant="outlined">
-                          <InputLabel htmlFor="basePrice">Price</InputLabel>
-                          <OutlinedInput
-                            id="basePrice"                            
-                            startAdornment={
-                              <InputAdornment position="start">
-                                $
-                              </InputAdornment>
-                            }
-                            labelWidth={60}
-                          />
+                      <Grid className="mr4" item xs={12}>
+                        <FormControl
+                          fullWidth
+                          variant="outlined"
+                          onClick={(event) => event.stopPropagation()}
+                          onFocus={(event) => event.stopPropagation()}
+                        >
+                          <Field
+                            type="number"
+                            name="basePrice"
+                            label="basePrice"
+                            variant="outlined"
+                            component={TextField}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  $
+                                </InputAdornment>
+                              ),
+                            }}
+                          ></Field>
                         </FormControl>
                       </Grid>
 
                       <Grid item xs={12}>
-                        <Field
-                          component={TextField}
-                          variant="outlined"
+                        <FormControl
                           fullWidth
-                          id="discount"
-                          label="Discount"
-                          name="discount"
-                          type="number"
-                        />
+                          variant="outlined"
+                          onClick={(event) => event.stopPropagation()}
+                          onFocus={(event) => event.stopPropagation()}
+                        >
+                          <Field
+                            component={TextField}
+                            variant="outlined"
+                            fullWidth
+                            id="discount"
+                            label="Discount"
+                            name="discount"
+                            type="number"
+                          />
+                        </FormControl>
                       </Grid>
                     </AccordionDetails>
                   </Accordion>
                 </Grid>
                 {/* Availabilty  */}
                 <Grid item xs={12}>
-                  <Accordion>
+                  <Accordion
+                    onClick={handleAvailAccordianClick}
+                    expanded={expanded.availability}
+                  >
                     <AccordionSummary
                       expandIcon={<ExpandMoreIcon />}
                       aria-controls="panel1a-content"
@@ -252,101 +359,128 @@ export const CreateProduct: React.FC<registerProps> = ({}) => {
                     </AccordionSummary>
                     <AccordionDetails>
                       <Grid item xs={12} sm={6}>
-                        <Field
-                          component={TextField}
-                          variant="outlined"
+                        <FormControl
                           fullWidth
-                          id="productAvailabileFrom"
-                          label="Start Date"
-                          name="productAvailabileFrom"
-                          autoComplete="productAvailabileFrom"
-                          type="date"
-                          className={classes.datePicker}
-                          InputLabelProps={{
-                            shrink: true,
-                          }}
-                        />
+                          variant="outlined"
+                          onClick={(event) => event.stopPropagation()}
+                          onFocus={(event) => event.stopPropagation()}
+                        >
+                          <Field
+                            component={TextField}
+                            variant="outlined"
+                            fullWidth
+                            id="productAvailableFrom"
+                            label="Start Date"
+                            name="productAvailableFrom"
+                            autoComplete="productAvailableFrom"
+                            type="date"
+                            className={classes.datePicker}
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                        </FormControl>
                       </Grid>
 
                       <Grid item xs={12} sm={6}>
-                        <Field
-                          component={TextField}
-                          variant="outlined"
+                        <FormControl
                           fullWidth
-                          id="productAvailabileTo"
-                          label="End Date"
-                          name="productAvailabileTo"
-                          autoComplete="productAvailabileTo"
-                          type="date"
-                          className={classes.datePicker}
-                          InputLabelProps={{
-                            shrink: true,
-                          }}
-                        />
+                          variant="outlined"
+                          onClick={(event) => event.stopPropagation()}
+                          onFocus={(event) => event.stopPropagation()}
+                        >
+                          <Field
+                            component={TextField}
+                            variant="outlined"
+                            fullWidth
+                            id="productAvailableTo"
+                            label="End Date"
+                            name="productAvailableTo"
+                            autoComplete="productAvailableTo"
+                            type="date"
+                            className={classes.datePicker}
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                        </FormControl>
                       </Grid>
                     </AccordionDetails>
                   </Accordion>
                 </Grid>
                 {/* Meta-data */}
                 <Grid item xs={12}>
-                  <Accordion>
+                  <Accordion
+                    onClick={handleMetaAccordianClick}
+                    expanded={expanded.metaData}
+                  >
                     <AccordionSummary
                       expandIcon={<ExpandMoreIcon />}
-                      aria-controls="panel1a-content"
-                      id="panel1a-header"
+                      aria-controls="metaDataPanel-content"
+                      id="metaDataPanel-header"
                     >
                       <Typography className={classes.heading}>
                         Meta-Data
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      <Grid item xs={12}>
-                        <Field
-                          component={TextField}
-                          variant="outlined"
-                          fullWidth
-                          id="barcode"
-                          label="Barcode"
-                          name="barcode"
-                          
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Field
-                          component={TextField}
-                          variant="outlined"
-                          fullWidth
-                          id="category"
-                          label="Category"
-                          name="category"
-                          autoComplete="category"
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Field
-                          component={TextField}
-                          variant="outlined"
-                          fullWidth
-                          id="manufacturer"
-                          label="Manufacturer"
-                          name="manufacturer"
-                          autoComplete="manufacturer"
-                        />
-                      </Grid>
+                      <FormControl
+                        fullWidth
+                        variant="outlined"
+                        onClick={(event) => event.stopPropagation()}
+                        onFocus={(event) => event.stopPropagation()}
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "flex-start",
+                          justifyItems: "space-around",
+                        }}
+                      >
+                        <Grid item xs={3} style={{ paddingRight: 4 }}>
+                          <Field
+                            component={TextField}
+                            fullWidth
+                            variant="outlined"
+                            id="barcode"
+                            label="Barcode"
+                            name="barcode"
+                          />
+                        </Grid>
+                        <Grid item xs={3} style={{ paddingRight: 4 }}>
+                          <Field
+                            component={TextField}
+                            fullWidth
+                            variant="outlined"
+                            id="category"
+                            label="Category"
+                            name="category"
+                            autoComplete="category"
+                          />
+                        </Grid>
+                        <Grid item xs={3} style={{ paddingRight: 4 }}>
+                          <Field
+                            component={TextField}
+                            fullWidth
+                            variant="outlined"
+                            id="manufacturer"
+                            label="Manufacturer"
+                            name="manufacturer"
+                            autoComplete="manufacturer"
+                          />
+                        </Grid>
 
-                      <Grid item xs={12}>
-                        <Field
-                          component={TextField}
-                          variant="outlined"
-                          fullWidth
-                          id="tags"
-                          label="Tags"
-                          name="tags"
-                          autoComplete="tags"
-                          multiline
-                          rows={4}
-                        />
-                      </Grid>
+                        <Grid item xs={3}>
+                          <Field
+                            component={TextField}
+                            fullWidth
+                            variant="outlined"
+                            id="tags"
+                            label="Tags"
+                            name="tags"
+                            autoComplete="tags"
+                            multiline
+                          />
+                        </Grid>
+                      </FormControl>
                     </AccordionDetails>
                   </Accordion>
                 </Grid>
@@ -369,6 +503,9 @@ export const CreateProduct: React.FC<registerProps> = ({}) => {
           )}
         </Formik>
       </div>
+      <Backdrop className={classes.backdrop} open={loading}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Container>
   );
 };

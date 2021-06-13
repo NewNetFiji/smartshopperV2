@@ -116,22 +116,17 @@ export const ProductCard: React.FC<cardProps> = ({ data }) => {
       <CardContent className={classes.namePriceArea}>
         <Grid container>
           <Grid item xs={6}>
-            <Typography variant="h5" color="textSecondary" component="p">
+            <Typography component="div" variant="h5" color="textSecondary" >
               {capitalizeFirstLetter(data.title)}
             </Typography>
           </Grid>
           <Grid item xs={6}>
-            <Typography
-              align="right"
-              variant="h6"
-              color="textSecondary"
-              component="p"
-            >
+            <Typography component="div" align="right" variant="h6" color="textSecondary">
               $ {data.basePrice}
             </Typography>
           </Grid>
           <Grid item xs={12}>
-            <Typography variant="body2" color="textSecondary" component="p">
+            <Typography component="div" variant="body2" color="textSecondary">
               Pack Size: {data.packSize}
             </Typography>
           </Grid>
