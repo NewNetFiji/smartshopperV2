@@ -4,7 +4,7 @@ import {
   CircularProgress,
   FormControl,
   InputAdornment,
-  LinearProgress,
+  LinearProgress
 } from "@material-ui/core";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
@@ -22,7 +22,7 @@ import React, { useState } from "react";
 import { array, object, string } from "yup";
 import {
   ImageUploadField,
-  uploadableFile,
+  uploadableFile
 } from "../src/components/fileUpload/ImageUploadField";
 import Header from "../src/components/ui/Header";
 import { useCreateProductMutation, useMeQuery } from "../src/generated/graphql";
@@ -31,6 +31,7 @@ import { createUrqlClient } from "../src/utils/createUrqlClient";
 import DisplayModal, { modalProps } from "../src/utils/DisplayModal";
 import { isServer } from "../src/utils/isServer";
 import { toErrorMap } from "../src/utils/toErrorMap";
+import { useIsAuth } from "../src/utils/useIsAuth";
 
 interface Values {
   //basic descriptors
@@ -93,17 +94,17 @@ const useStyles = makeStyles((theme) => ({
     zIndex: theme.zIndex.drawer + 1,
     color: "#fff",
   },
-  mr4: {
-    marginRight: 4,
+  pr4: {
+    paddingRight: 4,
   },
 }));
 
-
-
 export const CreateProduct: React.FC<registerProps> = ({}) => {
+  useIsAuth();
   const classes = useStyles();
+  const [{ data: meData}] = useMeQuery();  
+
   const [, createProduct] = useCreateProductMutation();
-  const [{ data: meData }] = useMeQuery();
   const [key, setKey] = useState(Math.random());
   const [expanded, setExpanded] = useState({
     price: false,
@@ -115,7 +116,8 @@ export const CreateProduct: React.FC<registerProps> = ({}) => {
     title: "",
     message: "",
     show: false,
-    type: "success"
+    type: "success",
+    resetModal,
   });
 
   const initialValues: Values = {
@@ -161,8 +163,16 @@ export const CreateProduct: React.FC<registerProps> = ({}) => {
     return Math.round((num + Number.EPSILON) * 100) / 100;
   }
 
-  function handleModal(prop: boolean) {
-    setModal({ ...modalSettings, show: prop });
+  function resetModal() {
+    if (modalSettings.show) {
+      setModal({
+        title: "",
+        message: "",
+        show: false,
+        type: "success",
+        resetModal,
+      });
+    }
   }
 
   return (
@@ -204,9 +214,9 @@ export const CreateProduct: React.FC<registerProps> = ({}) => {
                   title: "Create Product",
                   message: "Successfully created Product!",
                   show: true,
-                  type: "success"
-                });
-                console.log("Success!");
+                  type: "success",
+                  resetModal,
+                });                
 
                 //reset form
                 setKey(Math.random());
@@ -223,7 +233,8 @@ export const CreateProduct: React.FC<registerProps> = ({}) => {
                 message:
                   "There were some Errors in creating your Product. Please Contact Support.",
                 show: true,
-                type: "error"
+                type: "error",
+                resetModal,
               });
               console.log("error: ", error.message);
               resetForm({});
@@ -235,12 +246,15 @@ export const CreateProduct: React.FC<registerProps> = ({}) => {
             <Form className={classes.form}>
               <Grid container spacing={2}>
                 {/* {flag && <AlertNotice showAlert={showAlert} />} */}
-                <DisplayModal
-                  title={modalSettings.title}
-                  message={modalSettings.message}
-                  show={modalSettings.show}
-                  type={modalSettings.type}
-                />
+                {modalSettings.show ? (
+                  <DisplayModal
+                    title={modalSettings.title}
+                    message={modalSettings.message}
+                    show={modalSettings.show}
+                    type={modalSettings.type}
+                    resetModal={resetModal}
+                  />
+                ) : null}
                 <Grid item sm={12}>
                   <Field
                     component={TextField}
@@ -297,15 +311,21 @@ export const CreateProduct: React.FC<registerProps> = ({}) => {
                       </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                      <Grid className="mr4" item xs={12}>
-                        <FormControl
-                          fullWidth
-                          variant="outlined"
-                          onClick={(event) => event.stopPropagation()}
-                          onFocus={(event) => event.stopPropagation()}
-                        >
+                      <FormControl
+                        fullWidth
+                        variant="outlined"
+                        onClick={(event) => event.stopPropagation()}
+                        onFocus={(event) => event.stopPropagation()}
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "flex-start",
+                          justifyItems: "space-around",
+                        }}
+                      >
+                        <Grid style={{ paddingRight: 4 }} item xs={12}>
                           <Field
                             type="number"
+                            fullWidth
                             name="basePrice"
                             label="basePrice"
                             variant="outlined"
@@ -318,16 +338,9 @@ export const CreateProduct: React.FC<registerProps> = ({}) => {
                               ),
                             }}
                           ></Field>
-                        </FormControl>
-                      </Grid>
+                        </Grid>
 
-                      <Grid item xs={12}>
-                        <FormControl
-                          fullWidth
-                          variant="outlined"
-                          onClick={(event) => event.stopPropagation()}
-                          onFocus={(event) => event.stopPropagation()}
-                        >
+                        <Grid item xs={12}>
                           <Field
                             component={TextField}
                             variant="outlined"
@@ -337,8 +350,8 @@ export const CreateProduct: React.FC<registerProps> = ({}) => {
                             name="discount"
                             type="number"
                           />
-                        </FormControl>
-                      </Grid>
+                        </Grid>
+                      </FormControl>
                     </AccordionDetails>
                   </Accordion>
                 </Grid>

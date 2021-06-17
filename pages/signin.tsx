@@ -86,7 +86,12 @@ export const SignIn = ({}) => {
                 setErrors(toErrorMap(response.data.login.errors));
               } else if (response.data?.login.user) {
                 if (!isServer()) {
-                  router.push("/dashBoard");
+                  if (typeof router.query.next === "string"){
+                    router.push(router.query.next);
+                  }else {
+                    router.push( "/dashBoard")
+                  }
+                  
                 }
               }
             }}

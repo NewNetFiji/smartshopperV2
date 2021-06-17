@@ -22,6 +22,7 @@ const useStyles = makeStyles((theme: Theme) =>
     root: {
       maxWidth: 345,
       height: "100%",
+      borderRadius: 15,
       transition: "transform 0.15s ease-in-out",
       "&:hover": { transform: "scale3d(1.05, 1.05, 1)" },
     },
@@ -94,7 +95,8 @@ export const ProductCard: React.FC<cardProps> = ({ data }) => {
         title={data.title}
         subheader={data.packSize}
       /> */}
-      {data.images?.length ? (
+      
+      {data.images && data.images[0].id !== null ? (
         <Carousel autoPlay={false}>
           {data.images.map((image, i) => (
             <img
@@ -147,7 +149,7 @@ export const ProductCard: React.FC<cardProps> = ({ data }) => {
         </IconButton>
         <Button
           variant="contained"
-          color="secondary"
+          color="primary"
           className={classes.button}
           startIcon={<AddShoppingCartIcon />}
         >

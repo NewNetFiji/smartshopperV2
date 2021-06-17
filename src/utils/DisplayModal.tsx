@@ -1,13 +1,10 @@
 import React from "react";
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
-import { Button } from "@material-ui/core";
-import {
-  ErrorOutline,
-  CheckCircleOutline
-  
-} from "@material-ui/icons";
+import { Button, Grid, Typography } from "@material-ui/core";
+import { ErrorOutline, CheckCircleOutline } from "@material-ui/icons";
 import { green } from "@material-ui/core/colors";
+import theme from "../theme";
 
 function rand() {
   return Math.round(Math.random() * 20) - 10;
@@ -33,6 +30,13 @@ const useStyles = makeStyles((theme: Theme) =>
       boxShadow: theme.shadows[5],
       padding: theme.spacing(2, 4, 3),
     },
+    container: {
+        display: "flex",
+        flexDirection: "column",
+        justifyItems: "center",
+        alignItems: "center"
+
+    }
   })
 );
 
@@ -41,6 +45,7 @@ export interface modalProps {
   message: string;
   show: boolean;
   type: "error" | "success";
+  resetModal: () => void;
 }
 
 export const DisplayModal: React.FC<modalProps> = ({
@@ -48,36 +53,47 @@ export const DisplayModal: React.FC<modalProps> = ({
   message,
   show,
   type,
+  resetModal,
 }) => {
   const classes = useStyles();
-  const [open, setOpen] = React.useState(show);
   const [modalStyle] = React.useState(getModalStyle);
 
-  console.log("HERER: ", open);
-
   const handleClose = () => {
-    setOpen(false);
+    resetModal();
   };
 
   return (
     <div>
       <Modal
-        open={open}
+        open={show}
         onClose={handleClose}
         aria-labelledby="modal-title"
         aria-describedby="modal-description"
       >
         <div style={modalStyle} className={classes.paper}>
-          <h2 id="modal-title">{title}</h2>
-          <p id="modal-description">{message}</p>
-          {type === "success" ? (
-            <CheckCircleOutline style={{ color: green[500] }} />
-          ) : (
-            <ErrorOutline color="error" />
-          )}
-          <Button variant="outlined" onClick={handleClose}>
-            Ok
-          </Button>
+          <Grid container className={classes.container}>
+          <Grid item >
+              {type === "success" ? (
+                <CheckCircleOutline style={{ color: green[500] }} />
+              ) : (
+                <ErrorOutline color="error" />
+              )}
+            </Grid>
+            <Grid item style={{paddingBottom: theme.spacing(3)}}>
+              <Typography variant="h5">{title}</Typography>
+            </Grid>
+            <Grid item style={{paddingBottom: theme.spacing(3)}}>
+              <Typography align="center" component="p" id="modal-description">
+                {message}
+              </Typography>
+            </Grid>
+            
+            <Grid item >
+              <Button variant="outlined" onClick={handleClose}>
+                Ok
+              </Button>
+            </Grid>
+          </Grid>
         </div>
       </Modal>
     </div>

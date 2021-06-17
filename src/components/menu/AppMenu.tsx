@@ -25,7 +25,7 @@ const useStyles = makeStyles(theme =>
       width: drawerWidth,
     },
     menuItemIcon: {
-      color: theme.palette.secondary.main,
+      color: theme.palette.primary.main,
     },
   }),
 )

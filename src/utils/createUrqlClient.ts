@@ -1,6 +1,17 @@
-import { cacheExchange } from "@urql/exchange-graphcache";
+import {
+  cacheExchange,
+  NullArray,
+  Resolver,
+  Variables,
+  Cache
+} from "@urql/exchange-graphcache";
 import Router from "next/router";
-import { dedupExchange, Exchange, fetchExchange } from "urql";
+import {
+  dedupExchange,
+  Exchange,
+  fetchExchange,
+  stringifyVariables,
+} from "urql";
 import { pipe, tap } from "wonka";
 import {
   LoginMutation,
@@ -24,6 +35,55 @@ const errorExchange: Exchange =
     );
   };
 
+const cursorPagination = (): Resolver => {
+  return (_parent, fieldArgs, cache, info) => {
+    const { parentKey: entityKey, fieldName } = info;
+
+    const allFields = cache.inspectFields(entityKey);
+    const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
+    const size = fieldInfos.length;
+    if (size === 0) {
+      return undefined;
+    }
+
+    const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
+    const isItInTheCache = cache.resolve(
+      cache.resolve(entityKey, fieldKey) as string,
+      "products"
+    );
+
+
+    info.partial = !isItInTheCache;
+    let hasMore = true;
+    const results: string[] = [];
+    fieldInfos.forEach((fi) => {
+      const key = cache.resolve(entityKey, fi.fieldKey) as string;            
+      
+      const data = cache.resolve(key, "products") as string[];
+      const _hasMore = cache.resolve(key, "hasMore");
+      
+      if (!_hasMore) {
+        hasMore = _hasMore as boolean;
+      }
+      results.push(...data);
+    });
+
+    return {
+      __typename: "PaginatedProducts",
+      hasMore,
+      products: results,
+    };
+  };
+};
+
+function invalidateAllPosts(cache: Cache) {
+  const allFields = cache.inspectFields("Query");
+  const fieldInfos = allFields.filter((info) => info.fieldName === "getProducts");
+  fieldInfos.forEach((fi) => {
+    cache.invalidate("Query", "getProducts", fi.arguments || {});
+  });
+}
+
 export const createUrqlClient = (ssrExchange: any) => ({
   url: "http://localhost:4000/graphql",
   fetchOptions: {
@@ -32,8 +92,20 @@ export const createUrqlClient = (ssrExchange: any) => ({
   exchanges: [
     dedupExchange,
     cacheExchange({
+      keys: {
+        PaginatedProducts: () => null,
+        Image: ()=>null,
+      },
+      resolvers: {                
+        Query: {
+          getProducts: cursorPagination(),          
+        },
+      },
       updates: {
         Mutation: {
+          createProduct: (_result, args, cache, info) => {
+            invalidateAllPosts(cache);
+          },
           logout: (_result, args, cache, info) => {
             betterUpdateQuery<LogoutMutation, MeQuery>(
               cache,

@@ -1,7 +1,7 @@
-import { Button, Grid, Link, makeStyles, Typography } from "@material-ui/core";
+import { Grid, Link, makeStyles, Typography } from "@material-ui/core";
 import React from "react";
 import { Copyright } from "./copyright";
-import { deepPurple } from "@material-ui/core/colors";
+import { blueGrey } from "@material-ui/core/colors";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
     //padding: theme.spacing(6),
   },
   copyRight: {
-    backgroundColor: deepPurple[300],
+    backgroundColor: blueGrey[300],
   },
   cursive: {
     fontFamily: "Lobster",
@@ -27,7 +27,7 @@ export default function Footer() {
     <React.Fragment>
       <footer className={classes.root}>
         <Grid container>
-          <Grid style={{ backgroundColor: deepPurple[200] }} container>
+          <Grid style={{ backgroundColor: blueGrey[200] }} container>
             <Grid style={{ margin: "auto" }} item xs={4}>
               <Grid container>
                 <Grid item style={{ width: "100%" }}>

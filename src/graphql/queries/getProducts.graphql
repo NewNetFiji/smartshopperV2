@@ -1,0 +1,31 @@
+query getProducts($limit: Int!, $cursor: String, $vendorId: Int) {
+  getProducts(cursor: $cursor, limit: $limit, vendorId: $vendorId) {
+    hasMore
+    products {id
+    points
+    createdAt
+    updatedAt
+    title
+    description
+    productAvailableTo
+    productAvailableFrom
+    basePrice
+    packSize
+    discount
+    category
+    status
+    manufacturer
+    tags
+    vendorId
+    vendor {
+      id
+      image
+      name
+    }
+    images {
+      id
+      url
+      productId      
+    }
+  }}
+}

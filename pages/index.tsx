@@ -4,7 +4,7 @@ import {
 import { withUrqlClient } from "next-urql";
 import React from "react";
 import { createUrqlClient } from "../src/utils/createUrqlClient";
-import { Products } from "./products";
+import { Products } from "../src/components/product/Products";
 
 const useStyles = makeStyles((theme) => ({
   

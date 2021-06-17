@@ -188,6 +188,7 @@ export type Query = {
   __typename?: 'Query';
   hello: Scalars['String'];
   countProducts: Scalars['Int'];
+  getProducts: PaginatedProducts;
   fullProducts: Array<Product>;
   products: Array<Product>;
   product?: Maybe<Product>;
@@ -195,6 +196,13 @@ export type Query = {
   me?: Maybe<User>;
   image?: Maybe<Image>;
   images?: Maybe<Array<Image>>;
+};
+
+
+export type QueryGetProductsArgs = {
+  vendorId?: Maybe<Scalars['Int']>;
+  cursor?: Maybe<Scalars['String']>;
+  limit: Scalars['Int'];
 };
 
 
@@ -282,6 +290,12 @@ export type VendorResponse = {
   __typename?: 'VendorResponse';
   errors?: Maybe<Array<FieldError>>;
   vendor?: Maybe<Vendor>;
+};
+
+export type PaginatedProducts = {
+  __typename?: 'paginatedProducts';
+  hasMore: Scalars['Boolean'];
+  products: Array<Product>;
 };
 
 export type RegularErrorFragment = (
@@ -414,6 +428,32 @@ export type FullProductsQuery = (
       & Pick<Image, 'id' | 'url' | 'productId' | 'createdAt' | 'updatedAt'>
     )>> }
   )> }
+);
+
+export type GetProductsQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  cursor?: Maybe<Scalars['String']>;
+  vendorId?: Maybe<Scalars['Int']>;
+}>;
+
+
+export type GetProductsQuery = (
+  { __typename?: 'Query' }
+  & { getProducts: (
+    { __typename?: 'paginatedProducts' }
+    & Pick<PaginatedProducts, 'hasMore'>
+    & { products: Array<(
+      { __typename?: 'Product' }
+      & Pick<Product, 'id' | 'points' | 'createdAt' | 'updatedAt' | 'title' | 'description' | 'productAvailableTo' | 'productAvailableFrom' | 'basePrice' | 'packSize' | 'discount' | 'category' | 'status' | 'manufacturer' | 'tags' | 'vendorId'>
+      & { vendor: (
+        { __typename?: 'Vendor' }
+        & Pick<Vendor, 'id' | 'image' | 'name'>
+      ), images?: Maybe<Array<(
+        { __typename?: 'Image' }
+        & Pick<Image, 'id' | 'url' | 'productId'>
+      )>> }
+    )> }
+  ) }
 );
 
 export type GetPublicVendorQueryVariables = Exact<{ [key: string]: never; }>;
@@ -646,6 +686,45 @@ export const FullProductsDocument = gql`
 
 export function useFullProductsQuery(options: Omit<Urql.UseQueryArgs<FullProductsQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<FullProductsQuery>({ query: FullProductsDocument, ...options });
+};
+export const GetProductsDocument = gql`
+    query getProducts($limit: Int!, $cursor: String, $vendorId: Int) {
+  getProducts(cursor: $cursor, limit: $limit, vendorId: $vendorId) {
+    hasMore
+    products {
+      id
+      points
+      createdAt
+      updatedAt
+      title
+      description
+      productAvailableTo
+      productAvailableFrom
+      basePrice
+      packSize
+      discount
+      category
+      status
+      manufacturer
+      tags
+      vendorId
+      vendor {
+        id
+        image
+        name
+      }
+      images {
+        id
+        url
+        productId
+      }
+    }
+  }
+}
+    `;
+
+export function useGetProductsQuery(options: Omit<Urql.UseQueryArgs<GetProductsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetProductsQuery>({ query: GetProductsDocument, ...options });
 };
 export const GetPublicVendorDocument = gql`
     query getPublicVendor {

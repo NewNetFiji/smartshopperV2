@@ -34,8 +34,8 @@ const useStyles = makeStyles((theme) => ({
   avatar: {
     marginLeft: "50px",
     marginRight: "25px",
-    color: theme.palette.secondary.contrastText,
-    backgroundColor: theme.palette.secondary.main,
+    color: "inherit",
+    backgroundColor: theme.palette.primary.main,
   },
   face: {
     display: "flex",

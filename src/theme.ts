@@ -1,5 +1,5 @@
 import { createMuiTheme } from "@material-ui/core";
-import { amber, deepPurple } from "@material-ui/core/colors";
+import { lightGreen, blue } from "@material-ui/core/colors";
 import { CSSProperties } from "@material-ui/styles";
 
 declare module "@material-ui/core/styles/createTypography" {
@@ -22,8 +22,8 @@ declare module "@material-ui/core/Typography/Typography" {
 
 export default createMuiTheme({
   palette: {
-    primary: deepPurple,
-    secondary: amber,
+    primary: blue,
+    secondary: lightGreen,
   },
   typography: {
     tab: {
