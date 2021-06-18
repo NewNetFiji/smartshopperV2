@@ -163,7 +163,7 @@ export const CreateProduct: React.FC<registerProps> = ({}) => {
     return Math.round((num + Number.EPSILON) * 100) / 100;
   }
 
-  function resetModal() {
+  function resetModal () {
     if (modalSettings.show) {
       setModal({
         title: "",

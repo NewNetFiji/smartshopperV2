@@ -3,6 +3,8 @@ query getProducts($limit: Int!, $cursor: String, $vendorId: Int) {
     hasMore
     products {id
     points
+    downPoints
+    voteStatus
     createdAt
     updatedAt
     title

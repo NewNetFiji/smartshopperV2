@@ -3,7 +3,7 @@ import {
   NullArray,
   Resolver,
   Variables,
-  Cache
+  Cache,
 } from "@urql/exchange-graphcache";
 import Router from "next/router";
 import {
@@ -19,8 +19,10 @@ import {
   MeDocument,
   MeQuery,
   RegisterMutation,
+  VoteMutationVariables,
 } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
+import gql from "graphql-tag";
 
 const errorExchange: Exchange =
   ({ forward }) =>
@@ -52,16 +54,15 @@ const cursorPagination = (): Resolver => {
       "products"
     );
 
-
     info.partial = !isItInTheCache;
     let hasMore = true;
     const results: string[] = [];
     fieldInfos.forEach((fi) => {
-      const key = cache.resolve(entityKey, fi.fieldKey) as string;            
-      
+      const key = cache.resolve(entityKey, fi.fieldKey) as string;
+
       const data = cache.resolve(key, "products") as string[];
       const _hasMore = cache.resolve(key, "hasMore");
-      
+
       if (!_hasMore) {
         hasMore = _hasMore as boolean;
       }
@@ -78,7 +79,9 @@ const cursorPagination = (): Resolver => {
 
 function invalidateAllPosts(cache: Cache) {
   const allFields = cache.inspectFields("Query");
-  const fieldInfos = allFields.filter((info) => info.fieldName === "getProducts");
+  const fieldInfos = allFields.filter(
+    (info) => info.fieldName === "getProducts"
+  );
   fieldInfos.forEach((fi) => {
     cache.invalidate("Query", "getProducts", fi.arguments || {});
   });
@@ -94,15 +97,65 @@ export const createUrqlClient = (ssrExchange: any) => ({
     cacheExchange({
       keys: {
         PaginatedProducts: () => null,
-        Image: ()=>null,
+        Image: () => null,
       },
-      resolvers: {                
+      resolvers: {
         Query: {
-          getProducts: cursorPagination(),          
+          getProducts: cursorPagination(),
         },
       },
       updates: {
         Mutation: {
+          vote: (_result, args, cache, info) => {
+            const { productId, value } = args as VoteMutationVariables;
+            const data = cache.readFragment(
+              gql`
+                fragment _ on Product {
+                  id
+                  points
+                  downPoints
+                  voteStatus
+                }
+              `,
+              { id: productId } as any
+            );
+
+            if (data) {
+              if (data.voteStatus === value) {
+                return;
+              }
+              if (value) {
+                cache.writeFragment(
+                  gql`
+                    fragment __ on Product {
+                      points
+                      voteStatus
+                    }
+                  `,
+                  {
+                    id: productId,
+                    points: data.points + 1,
+                    voteStatus: value,
+                  } as any
+                );
+              } else {
+                cache.writeFragment(
+                  gql`
+                    fragment ___ on Product {
+                      downPoints
+                      voteStatus
+                    }
+                  `,
+                  {
+                    id: productId,
+                    downPoints: data.downPoints + 1,
+                    voteStatus: value,
+                  } as any
+                );
+              }
+            }
+          },
+
           createProduct: (_result, args, cache, info) => {
             invalidateAllPosts(cache);
           },

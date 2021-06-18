@@ -8,11 +8,10 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import AddShoppingCartIcon from "@material-ui/icons/AddShoppingCart";
 import FavoriteIcon from "@material-ui/icons/Favorite";
-import React from "react";
+import React, { useState } from "react";
 import Carousel from "react-material-ui-carousel";
-import { Product } from "../../generated/graphql";
+import { Product, useVoteMutation } from "../../generated/graphql";
 import capitalizeFirstLetter from "../../utils/capitalizeFirstLetter";
-
 interface cardProps {
   data: Product;
 }
@@ -65,21 +64,37 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-// const getImages = (prodId: number) => {
-//   const [{ data }] = useImagesQuery({
-//     variables: { productId: prodId },
-//   });
-
-//   if (data?.images) {
-//     return data.images;
-//   } else {
-//     return [];
-//   }
-// };
-
 export const ProductCard: React.FC<cardProps> = ({ data }) => {
   const classes = useStyles();
-  // const images = getImages(data.id);
+
+  const [, vote] = useVoteMutation();
+  const [voted, setVoted] = useState(data.voteStatus);
+  const [likes, setLike] = useState(data.points as number)
+
+  
+  async function handleVote() {
+    if (data.voteStatus) {
+      //has voted before
+      const { error } = await vote({ value: false, productId: data.id });
+      if (error) {
+        if (error.message.includes("Not Authenticated")) {
+          //push to sign in?
+        }
+        console.log("Error in Vote Mutation:", error);
+      } else {
+        setLike(likes-1)
+        setVoted(false);
+      }
+    } else {
+      const { error } = await vote({ value: true, productId: data.id });
+      if (error) {
+        console.log("Error in Vote Mutation:", error);
+      } else {
+        setLike(likes+1)
+        setVoted(true);
+      }
+    }
+  }
 
   return (
     <Card className={classes.root}>
@@ -95,7 +110,7 @@ export const ProductCard: React.FC<cardProps> = ({ data }) => {
         title={data.title}
         subheader={data.packSize}
       /> */}
-      
+
       {data.images && data.images[0].id !== null ? (
         <Carousel autoPlay={false}>
           {data.images.map((image, i) => (
@@ -118,12 +133,17 @@ export const ProductCard: React.FC<cardProps> = ({ data }) => {
       <CardContent className={classes.namePriceArea}>
         <Grid container>
           <Grid item xs={6}>
-            <Typography component="div" variant="h5" color="textSecondary" >
+            <Typography component="div" variant="h5" color="textSecondary">
               {capitalizeFirstLetter(data.title)}
             </Typography>
           </Grid>
           <Grid item xs={6}>
-            <Typography component="div" align="right" variant="h6" color="textSecondary">
+            <Typography
+              component="div"
+              align="right"
+              variant="h6"
+              color="textSecondary"
+            >
               $ {data.basePrice}
             </Typography>
           </Grid>
@@ -135,9 +155,9 @@ export const ProductCard: React.FC<cardProps> = ({ data }) => {
         </Grid>
       </CardContent>
       <CardActions disableSpacing>
-        <IconButton aria-label="like">
-          <Badge badgeContent={data.points} className={classes.badge}>
-            <FavoriteIcon />
+        <IconButton onClick={handleVote} aria-label="like">
+          <Badge badgeContent={likes} className={classes.badge}>
+            <FavoriteIcon color={voted ? "primary" : "disabled"} />
           </Badge>
         </IconButton>
         <IconButton aria-label="vendor">

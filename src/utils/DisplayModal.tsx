@@ -6,6 +6,14 @@ import { ErrorOutline, CheckCircleOutline } from "@material-ui/icons";
 import { green } from "@material-ui/core/colors";
 import theme from "../theme";
 
+export interface modalProps {
+  title: string;
+  message: string;
+  show: boolean;
+  type: "error" | "success";
+  resetModal: () => void;
+}
+
 function rand() {
   return Math.round(Math.random() * 20) - 10;
 }
@@ -31,22 +39,13 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: theme.spacing(2, 4, 3),
     },
     container: {
-        display: "flex",
-        flexDirection: "column",
-        justifyItems: "center",
-        alignItems: "center"
-
-    }
+      display: "flex",
+      flexDirection: "column",
+      justifyItems: "center",
+      alignItems: "center",
+    },
   })
 );
-
-export interface modalProps {
-  title: string;
-  message: string;
-  show: boolean;
-  type: "error" | "success";
-  resetModal: () => void;
-}
 
 export const DisplayModal: React.FC<modalProps> = ({
   title,
@@ -72,23 +71,23 @@ export const DisplayModal: React.FC<modalProps> = ({
       >
         <div style={modalStyle} className={classes.paper}>
           <Grid container className={classes.container}>
-          <Grid item >
+            <Grid item>
               {type === "success" ? (
                 <CheckCircleOutline style={{ color: green[500] }} />
               ) : (
                 <ErrorOutline color="error" />
               )}
             </Grid>
-            <Grid item style={{paddingBottom: theme.spacing(3)}}>
+            <Grid item style={{ paddingBottom: theme.spacing(3) }}>
               <Typography variant="h5">{title}</Typography>
             </Grid>
-            <Grid item style={{paddingBottom: theme.spacing(3)}}>
+            <Grid item style={{ paddingBottom: theme.spacing(3) }}>
               <Typography align="center" component="p" id="modal-description">
                 {message}
               </Typography>
             </Grid>
-            
-            <Grid item >
+
+            <Grid item>
               <Button variant="outlined" onClick={handleClose}>
                 Ok
               </Button>

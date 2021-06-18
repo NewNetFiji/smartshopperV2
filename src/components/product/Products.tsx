@@ -1,17 +1,17 @@
-import { Backdrop, Button, CircularProgress, TextField, Typography } from "@material-ui/core";
+import {
+  Backdrop,
+  Button,
+  CircularProgress,
+  TextField,
+  Typography,
+} from "@material-ui/core";
 import Container from "@material-ui/core/Container";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Grid from "@material-ui/core/Grid";
 import { makeStyles } from "@material-ui/core/styles";
-import { Pagination } from "@material-ui/lab";
 import { withUrqlClient } from "next-urql";
 import React, { useState } from "react";
-import {
-  Product,
-  useCountProductsQuery,
-  useFullProductsQuery,
-  useGetProductsQuery,
-} from "../../generated/graphql";
+import { Product, useGetProductsQuery } from "../../generated/graphql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 import Footer from "../ui/footer";
 import Header from "../ui/Header";
@@ -36,12 +36,15 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const Products = () => {
-  const classes = useStyles();  
-  const [countProducts] = useCountProductsQuery();
-  const count = countProducts;
-  const pages = count.data?.countProducts
-    ? Math.round(count.data?.countProducts / 12)
-    : 0;
+  const classes = useStyles();
+
+  // const [countProducts] = useCountProductsQuery();
+
+  // const count = countProducts;
+  // const pages = count.data?.countProducts
+  //   ? Math.round(count.data?.countProducts / 12)
+  //   : 0;
+  // const [page, setPage] = React.useState(1);
 
   const [variables, setVariables] = useState({
     limit: 48,
@@ -51,13 +54,9 @@ export const Products = () => {
     variables,
   });
 
-  
-
-  const [page, setPage] = React.useState(1);
-
-  const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
-    setPage(value);
-  };
+  // const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
+  //   setPage(value);
+  // };
 
   let body = null;
   if (data) {
@@ -77,8 +76,6 @@ export const Products = () => {
       <CssBaseline />
       <Header />
       <main>
-        {/* <Hero /> */}
-        
         <Container className={classes.cardContainer} maxWidth="lg">
           <TextField
             className={classes.search}
@@ -112,8 +109,9 @@ export const Products = () => {
                   setVariables({
                     limit: variables.limit,
                     cursor:
-                      data?.getProducts.products[data.getProducts.products.length - 1]
-                        .createdAt,
+                      data?.getProducts.products[
+                        data.getProducts.products.length - 1
+                      ].createdAt,
                   })
                 }
               >

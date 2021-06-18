@@ -45,6 +45,7 @@ export type ImageResponse = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  vote: Scalars['Boolean'];
   createProduct: ProductResponse;
   updateProduct?: Maybe<ProductResponse>;
   deleteProduct?: Maybe<Scalars['Boolean']>;
@@ -60,6 +61,12 @@ export type Mutation = {
   createImage: ImageResponse;
   updateImage?: Maybe<ImageResponse>;
   deleteImage?: Maybe<Scalars['Boolean']>;
+};
+
+
+export type MutationVoteArgs = {
+  value: Scalars['Boolean'];
+  productId: Scalars['Int'];
 };
 
 
@@ -134,15 +141,23 @@ export type MutationDeleteImageArgs = {
   id: Scalars['Float'];
 };
 
+export type PaginatedProducts = {
+  __typename?: 'PaginatedProducts';
+  hasMore: Scalars['Boolean'];
+  products: Array<Product>;
+};
+
 export type Product = {
   __typename?: 'Product';
   id: Scalars['Float'];
   title: Scalars['String'];
-  points: Scalars['Float'];
+  points?: Maybe<Scalars['Float']>;
+  downPoints?: Maybe<Scalars['Float']>;
+  voteStatus?: Maybe<Scalars['Boolean']>;
   description?: Maybe<Scalars['String']>;
   productAvailableTo?: Maybe<Scalars['String']>;
   productAvailableFrom?: Maybe<Scalars['String']>;
-  basePrice?: Maybe<Scalars['Float']>;
+  basePrice: Scalars['Float'];
   barcode?: Maybe<Scalars['String']>;
   packSize?: Maybe<Scalars['String']>;
   discount?: Maybe<Scalars['Float']>;
@@ -153,6 +168,7 @@ export type Product = {
   vendorId: Scalars['Float'];
   vendor: Vendor;
   images?: Maybe<Array<Image>>;
+  upboats?: Maybe<Array<Upboat>>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
 };
@@ -234,6 +250,15 @@ export type QueryImagesArgs = {
   productId: Scalars['Int'];
 };
 
+export type Upboat = {
+  __typename?: 'Upboat';
+  value: Scalars['Boolean'];
+  userId: Scalars['Float'];
+  productId: Scalars['Float'];
+  user: User;
+  product: Product;
+};
+
 export type User = {
   __typename?: 'User';
   id: Scalars['Float'];
@@ -290,12 +315,6 @@ export type VendorResponse = {
   __typename?: 'VendorResponse';
   errors?: Maybe<Array<FieldError>>;
   vendor?: Maybe<Vendor>;
-};
-
-export type PaginatedProducts = {
-  __typename?: 'paginatedProducts';
-  hasMore: Scalars['Boolean'];
-  products: Array<Product>;
 };
 
 export type RegularErrorFragment = (
@@ -400,6 +419,17 @@ export type RegisterMutation = (
   ) }
 );
 
+export type VoteMutationVariables = Exact<{
+  value: Scalars['Boolean'];
+  productId: Scalars['Int'];
+}>;
+
+
+export type VoteMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'vote'>
+);
+
 export type CountProductsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -440,11 +470,11 @@ export type GetProductsQueryVariables = Exact<{
 export type GetProductsQuery = (
   { __typename?: 'Query' }
   & { getProducts: (
-    { __typename?: 'paginatedProducts' }
+    { __typename?: 'PaginatedProducts' }
     & Pick<PaginatedProducts, 'hasMore'>
     & { products: Array<(
       { __typename?: 'Product' }
-      & Pick<Product, 'id' | 'points' | 'createdAt' | 'updatedAt' | 'title' | 'description' | 'productAvailableTo' | 'productAvailableFrom' | 'basePrice' | 'packSize' | 'discount' | 'category' | 'status' | 'manufacturer' | 'tags' | 'vendorId'>
+      & Pick<Product, 'id' | 'points' | 'downPoints' | 'voteStatus' | 'createdAt' | 'updatedAt' | 'title' | 'description' | 'productAvailableTo' | 'productAvailableFrom' | 'basePrice' | 'packSize' | 'discount' | 'category' | 'status' | 'manufacturer' | 'tags' | 'vendorId'>
       & { vendor: (
         { __typename?: 'Vendor' }
         & Pick<Vendor, 'id' | 'image' | 'name'>
@@ -640,6 +670,15 @@ export const RegisterDocument = gql`
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
 };
+export const VoteDocument = gql`
+    mutation Vote($value: Boolean!, $productId: Int!) {
+  vote(value: $value, productId: $productId)
+}
+    `;
+
+export function useVoteMutation() {
+  return Urql.useMutation<VoteMutation, VoteMutationVariables>(VoteDocument);
+};
 export const CountProductsDocument = gql`
     query CountProducts {
   countProducts
@@ -694,6 +733,8 @@ export const GetProductsDocument = gql`
     products {
       id
       points
+      downPoints
+      voteStatus
       createdAt
       updatedAt
       title

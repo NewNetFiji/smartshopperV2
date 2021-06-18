@@ -1,0 +1,3 @@
+mutation Vote($value: Boolean!, $productId: Int!) {
+  vote(value: $value, productId: $productId)
+}
