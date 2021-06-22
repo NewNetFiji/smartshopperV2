@@ -92,7 +92,7 @@ export const ChangePassword: NextPage<{}> = ({}) => {
               setErrors(errorMap);
             } else if (response.data?.changePassword.user) {
               if (!isServer()) {
-                router.push("/dashBoard");
+                router.push("/");
               }
             }
           }}

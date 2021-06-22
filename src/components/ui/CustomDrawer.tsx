@@ -79,7 +79,7 @@ function getName(user: User) {
   }
 }
 
-export const Drawer: React.FC<drawerProps> = ({ data }) => {
+export const CustomDrawer: React.FC<drawerProps> = ({ data }) => {
   const router = useRouter();
   const classes = useStyles();
   const [fetching, logout] = useLogoutMutation();

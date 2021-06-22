@@ -2,24 +2,23 @@ import {
   Backdrop,
   Button,
   CircularProgress,
-  TextField,
   Typography,
 } from "@material-ui/core";
 import Container from "@material-ui/core/Container";
-import CssBaseline from "@material-ui/core/CssBaseline";
 import Grid from "@material-ui/core/Grid";
 import { makeStyles } from "@material-ui/core/styles";
-import { withUrqlClient } from "next-urql";
 import React, { useState } from "react";
 import { Product, useGetProductsQuery } from "../../generated/graphql";
-import { createUrqlClient } from "../../utils/createUrqlClient";
-import Footer from "../ui/footer";
-import Header from "../ui/Header";
+import { CustomSearchBar } from "../ui/CustomSearchBar";
 import { ProductCard } from "./NewProdCard";
 
 const useStyles = makeStyles((theme) => ({
   icon: {
     marginRight: theme.spacing(2),
+  },
+  cart: {
+    marginTop: theme.spacing(8),
+    marginBottom: theme.spacing(2),
   },
   cardContainer: {
     flexGrow: 1,
@@ -35,16 +34,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const Products = () => {
+interface props {
+  handleAddToCart: (clickedItem: Product) => void;
+}
+
+export const Products: React.FC<props> = ({ handleAddToCart }) => {
   const classes = useStyles();
-
-  // const [countProducts] = useCountProductsQuery();
-
-  // const count = countProducts;
-  // const pages = count.data?.countProducts
-  //   ? Math.round(count.data?.countProducts / 12)
-  //   : 0;
-  // const [page, setPage] = React.useState(1);
 
   const [variables, setVariables] = useState({
     limit: 48,
@@ -54,17 +49,16 @@ export const Products = () => {
     variables,
   });
 
-  // const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
-  //   setPage(value);
-  // };
-
   let body = null;
   if (data) {
     body = (
       <>
         {data.getProducts.products?.map((product) => (
           <Grid item key={product.id} xs={12} sm={3}>
-            <ProductCard data={product as Product} />
+            <ProductCard
+              handleAddToCart={handleAddToCart}
+              data={product as Product}
+            />
           </Grid>
         ))}
       </>
@@ -73,25 +67,10 @@ export const Products = () => {
 
   return (
     <React.Fragment>
-      <CssBaseline />
-      <Header />
       <main>
         <Container className={classes.cardContainer} maxWidth="lg">
-          <TextField
-            className={classes.search}
-            id="search"
-            label="Search field"
-            type="search"
-            variant="outlined"
-            fullWidth
-          />
-          {/* <Pagination
-            page={page}
-            onChange={handleChange}
-            className={classes.search}
-            count={pages}
-            color="primary"
-          /> */}
+          <CustomSearchBar />
+
           <Grid container spacing={2}>
             {fetching && !data ? (
               <div>
@@ -124,9 +103,8 @@ export const Products = () => {
       <Backdrop className={classes.backdrop} open={fetching}>
         <CircularProgress color="primary" />
       </Backdrop>
-      <Footer />
     </React.Fragment>
   );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(Products);
+export default Products;

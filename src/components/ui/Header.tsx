@@ -1,19 +1,21 @@
-import React, { useState, useEffect } from "react";
+import { Badge, Box, IconButton, Slide, Typography, Drawer } from "@material-ui/core";
 import AppBar from "@material-ui/core/AppBar";
+import Button from "@material-ui/core/Button";
+import { deepPurple } from "@material-ui/core/colors";
+import { makeStyles } from "@material-ui/core/styles";
+import Tab from "@material-ui/core/Tab";
+import Tabs from "@material-ui/core/Tabs";
 import Toolbar from "@material-ui/core/Toolbar";
 import useScrollTrigger from "@material-ui/core/useScrollTrigger";
-import { makeStyles } from "@material-ui/core/styles";
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
-import Button from "@material-ui/core/Button";
-import { useMeQuery } from "../../generated/graphql";
-import { deepPurple } from "@material-ui/core/colors";
-import { Box, Slide, Typography } from "@material-ui/core";
-import { Drawer } from "../ui/Drawer";
-import { isServer } from "../../utils/isServer";
+import AddShoppingCartIcon from "@material-ui/icons/AddShoppingCart";
 import { useRouter } from "next/router";
-import StyledLink from "./styledLink";
+import React, { useEffect, useState } from "react";
+import { Product, useMeQuery } from "../../generated/graphql";
 import { ClientOnly } from "../../utils/ClientOnly";
+import { isServer } from "../../utils/isServer";
+import Cart from "../cart/Cart";
+import { CustomDrawer } from "./CustomDrawer";
+import StyledLink from "./styledLink";
 
 interface Props {
   children: React.ReactElement;
@@ -88,12 +90,6 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: "25px",
     color: theme.palette.getContrastText("#ffffff"),
   },
-  avatar: {
-    marginLeft: "50px",
-    marginRight: "25px",
-    color: theme.palette.getContrastText(deepPurple[500]),
-    backgroundColor: deepPurple[500],
-  },
   headerButtons: {
     marginLeft: "auto",
     margin: theme.spacing(2),
@@ -104,6 +100,10 @@ const useStyles = makeStyles((theme) => ({
   },
   iconRoot: {
     textAlign: "center",
+  },
+  shoppingCartIcon: {
+    marginLeft: "25px",    
+    color: theme.palette.grey[500]    
   },
 }));
 
@@ -137,6 +137,42 @@ export default function Header() {
   const [{ data, fetching }] = useMeQuery({
     pause: isServer(),
   });
+
+  const [cartOpen, setCartOpen] = useState(false);
+  const [cartItems, setCartItems] = useState([] as Product[]);
+
+  const getTotalItems = (items: Product[]) =>
+    items.reduce((ack: number, item) => ack + item.basePrice, 0);
+
+  const handleAddToCart = (clickedItem: Product) => {
+    setCartItems((prev) => {
+      // 1. Is the item already added in the cart?
+      const isItemInCart = prev.find((item) => item.id === clickedItem.id);
+
+      if (isItemInCart) {
+        return prev.map((item) =>
+          item.id === clickedItem.id
+            ? { ...item, amount: item.basePrice + 1 }
+            : item
+        );
+      }
+      // First time the item is added
+      return [...prev, { ...clickedItem, amount: 1 }];
+    });
+  };
+
+  const handleRemoveFromCart = (id: number) => {
+    setCartItems((prev) =>
+      prev.reduce((ack, item) => {
+        if (item.id === id) {
+          if (item.basePrice === 1) return ack;
+          return [...ack, { ...item, amount: item.basePrice - 1 }];
+        } else {
+          return [...ack, item];
+        }
+      }, [] as Product[])
+    );
+  };
 
   const handleChange = (e: React.ChangeEvent<{}>, newValue: number) => {
     lastValue = value;
@@ -185,7 +221,7 @@ export default function Header() {
   } else {
     //user Is loged in
     body = (
-      <>
+      <React.Fragment>
         <Tabs
           value={value}
           onChange={handleChange}
@@ -195,8 +231,27 @@ export default function Header() {
             <Tab className={classes.tab} key={value} label={route.title} />
           ))}
         </Tabs>
-        <Drawer data={data} />
-      </>
+        
+        <IconButton className={classes.shoppingCartIcon}>
+          <Badge badgeContent={getTotalItems(cartItems)} color="error">
+            <AddShoppingCartIcon onClick={() => setCartOpen(true)} />
+          </Badge>
+        </IconButton>
+        
+
+        <CustomDrawer data={data} />
+        <Drawer
+            anchor="right"
+            open={cartOpen}
+            onClose={() => setCartOpen(false)}
+          >
+            <Cart
+              cartItems={cartItems}
+              addToCart={handleAddToCart}
+              removeFromCart={handleRemoveFromCart}
+            />
+          </Drawer>
+      </React.Fragment>
     );
   }
 

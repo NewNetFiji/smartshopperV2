@@ -61,6 +61,9 @@ export type Mutation = {
   createImage: ImageResponse;
   updateImage?: Maybe<ImageResponse>;
   deleteImage?: Maybe<Scalars['Boolean']>;
+  createOrder: OrderResponse;
+  ackOrder?: Maybe<OrderResponse>;
+  deleteOrder?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -141,6 +144,88 @@ export type MutationDeleteImageArgs = {
   id: Scalars['Float'];
 };
 
+
+export type MutationCreateOrderArgs = {
+  order: Array<OrderDetailInput>;
+};
+
+
+export type MutationAckOrderArgs = {
+  options: OrderHeaderInput;
+};
+
+
+export type MutationDeleteOrderArgs = {
+  id: Scalars['Float'];
+};
+
+export type Order = {
+  __typename?: 'Order';
+  id: Scalars['Float'];
+  orderTotal: Scalars['Float'];
+  tax?: Maybe<Scalars['Float']>;
+  customerId: Scalars['Int'];
+  creatorId?: Maybe<Scalars['Int']>;
+  updaterId?: Maybe<Scalars['Int']>;
+  vendorId: Scalars['Int'];
+  status: OrderStatus;
+  deliveryAddress?: Maybe<Scalars['String']>;
+  deliveryDate?: Maybe<Scalars['String']>;
+  customer: User;
+  creator?: Maybe<User>;
+  updater?: Maybe<User>;
+  vendor: Vendor;
+  items?: Maybe<Array<Orderdetail>>;
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+};
+
+export type OrderDetailInput = {
+  qty?: Maybe<Scalars['Int']>;
+  price?: Maybe<Scalars['Float']>;
+  productId?: Maybe<Scalars['Int']>;
+  vendorId?: Maybe<Scalars['Int']>;
+};
+
+export type OrderHeaderInput = {
+  id: Scalars['Int'];
+  deliveryDate?: Maybe<Scalars['String']>;
+  deliveryAddress?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
+};
+
+export type OrderResponse = {
+  __typename?: 'OrderResponse';
+  errors?: Maybe<Array<FieldError>>;
+  order?: Maybe<Array<Order>>;
+};
+
+/** Tracks the status of an order */
+export enum OrderStatus {
+  New = 'NEW',
+  Processing = 'PROCESSING',
+  Rejected = 'REJECTED',
+  Delivery = 'DELIVERY',
+  Review = 'REVIEW',
+  Completed = 'COMPLETED',
+  Deleted = 'DELETED'
+}
+
+export type Orderdetail = {
+  __typename?: 'Orderdetail';
+  id: Scalars['Int'];
+  qty: Scalars['Int'];
+  price: Scalars['Int'];
+  productId: Scalars['Int'];
+  orderId?: Maybe<Scalars['Float']>;
+};
+
+export type PaginatedOrders = {
+  __typename?: 'PaginatedOrders';
+  hasMore: Scalars['Boolean'];
+  orders: Array<Order>;
+};
+
 export type PaginatedProducts = {
   __typename?: 'PaginatedProducts';
   hasMore: Scalars['Boolean'];
@@ -162,10 +247,10 @@ export type Product = {
   packSize?: Maybe<Scalars['String']>;
   discount?: Maybe<Scalars['Float']>;
   category?: Maybe<Scalars['String']>;
-  status: Scalars['String'];
+  status: Status;
   manufacturer?: Maybe<Scalars['String']>;
   tags?: Maybe<Scalars['String']>;
-  vendorId: Scalars['Float'];
+  vendorId: Scalars['Int'];
   vendor: Vendor;
   images?: Maybe<Array<Image>>;
   upboats?: Maybe<Array<Upboat>>;
@@ -205,24 +290,18 @@ export type Query = {
   hello: Scalars['String'];
   countProducts: Scalars['Int'];
   getProducts: PaginatedProducts;
-  fullProducts: Array<Product>;
   products: Array<Product>;
   product?: Maybe<Product>;
   getPublicVendor?: Maybe<Vendor>;
   me?: Maybe<User>;
   image?: Maybe<Image>;
   images?: Maybe<Array<Image>>;
+  getVendorOrders?: Maybe<PaginatedOrders>;
+  order?: Maybe<Order>;
 };
 
 
 export type QueryGetProductsArgs = {
-  vendorId?: Maybe<Scalars['Int']>;
-  cursor?: Maybe<Scalars['String']>;
-  limit: Scalars['Int'];
-};
-
-
-export type QueryFullProductsArgs = {
   vendorId?: Maybe<Scalars['Int']>;
   cursor?: Maybe<Scalars['String']>;
   limit: Scalars['Int'];
@@ -250,6 +329,36 @@ export type QueryImagesArgs = {
   productId: Scalars['Int'];
 };
 
+
+export type QueryGetVendorOrdersArgs = {
+  vendorId?: Maybe<Scalars['Int']>;
+  cursor?: Maybe<Scalars['String']>;
+  limit: Scalars['Int'];
+};
+
+
+export type QueryOrderArgs = {
+  id: Scalars['Int'];
+};
+
+/** General Status Enum. Defined in Product entity. */
+export enum Status {
+  New = 'NEW',
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE',
+  Suspended = 'SUSPENDED',
+  Deleted = 'DELETED'
+}
+
+/** Type of vendor */
+export enum TypeOfVendor {
+  New = 'NEW',
+  Admin = 'ADMIN',
+  Display = 'DISPLAY',
+  Trader = 'TRADER',
+  Public = 'PUBLIC'
+}
+
 export type Upboat = {
   __typename?: 'Upboat';
   value: Scalars['Boolean'];
@@ -267,9 +376,14 @@ export type User = {
   email: Scalars['String'];
   firstName: Scalars['String'];
   lastName: Scalars['String'];
-  userRole: Scalars['String'];
-  status: Scalars['String'];
-  vendorId: Scalars['Float'];
+  roles: Array<UserRole>;
+  status: UserStatus;
+  vendorId: Scalars['Int'];
+  ordersPlaced: Array<Order>;
+  ordersMade: Array<Order>;
+  ordersUpdated: Array<Order>;
+  vendor: Vendor;
+  upboats: Array<Upboat>;
 };
 
 export type UserResponse = {
@@ -277,6 +391,24 @@ export type UserResponse = {
   errors?: Maybe<Array<FieldError>>;
   user?: Maybe<User>;
 };
+
+/** User Role. duhh. */
+export enum UserRole {
+  General = 'GENERAL',
+  Admin = 'ADMIN',
+  Ghost = 'GHOST',
+  Super = 'SUPER',
+  Data = 'DATA'
+}
+
+/** General Status Enum. */
+export enum UserStatus {
+  New = 'NEW',
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE',
+  Suspended = 'SUSPENDED',
+  Deleted = 'DELETED'
+}
 
 export type UsernamePasswordInput = {
   email: Scalars['String'];
@@ -293,8 +425,8 @@ export type Vendor = {
   address: Scalars['String'];
   tin: Scalars['String'];
   image: Scalars['String'];
-  status: Scalars['String'];
-  vendorType: Scalars['String'];
+  status: VendorStatus;
+  vendorType: TypeOfVendor;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
 };
@@ -317,6 +449,15 @@ export type VendorResponse = {
   vendor?: Maybe<Vendor>;
 };
 
+/** Tracks the status of an vendor */
+export enum VendorStatus {
+  New = 'NEW',
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE',
+  Suspended = 'SUSPENDED',
+  Deleted = 'DELETED'
+}
+
 export type RegularErrorFragment = (
   { __typename?: 'FieldError' }
   & Pick<FieldError, 'field' | 'message'>
@@ -324,7 +465,7 @@ export type RegularErrorFragment = (
 
 export type RegularUserFragment = (
   { __typename?: 'User' }
-  & Pick<User, 'id' | 'email' | 'status' | 'userRole' | 'firstName' | 'lastName' | 'vendorId'>
+  & Pick<User, 'id' | 'email' | 'status' | 'roles' | 'firstName' | 'lastName' | 'vendorId'>
 );
 
 export type RegularUserResponseFragment = (
@@ -438,28 +579,6 @@ export type CountProductsQuery = (
   & Pick<Query, 'countProducts'>
 );
 
-export type FullProductsQueryVariables = Exact<{
-  limit: Scalars['Int'];
-  cursor?: Maybe<Scalars['String']>;
-  vendorId?: Maybe<Scalars['Int']>;
-}>;
-
-
-export type FullProductsQuery = (
-  { __typename?: 'Query' }
-  & { fullProducts: Array<(
-    { __typename?: 'Product' }
-    & Pick<Product, 'id' | 'points' | 'createdAt' | 'updatedAt' | 'title' | 'description' | 'productAvailableTo' | 'productAvailableFrom' | 'basePrice' | 'packSize' | 'discount' | 'category' | 'status' | 'manufacturer' | 'tags' | 'vendorId'>
-    & { vendor: (
-      { __typename?: 'Vendor' }
-      & Pick<Vendor, 'id' | 'image' | 'name'>
-    ), images?: Maybe<Array<(
-      { __typename?: 'Image' }
-      & Pick<Image, 'id' | 'url' | 'productId' | 'createdAt' | 'updatedAt'>
-    )>> }
-  )> }
-);
-
 export type GetProductsQueryVariables = Exact<{
   limit: Scalars['Int'];
   cursor?: Maybe<Scalars['String']>;
@@ -554,7 +673,7 @@ export const RegularUserFragmentDoc = gql`
   id
   email
   status
-  userRole
+  roles
   firstName
   lastName
   vendorId
@@ -687,44 +806,6 @@ export const CountProductsDocument = gql`
 
 export function useCountProductsQuery(options: Omit<Urql.UseQueryArgs<CountProductsQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<CountProductsQuery>({ query: CountProductsDocument, ...options });
-};
-export const FullProductsDocument = gql`
-    query FullProducts($limit: Int!, $cursor: String, $vendorId: Int) {
-  fullProducts(cursor: $cursor, limit: $limit, vendorId: $vendorId) {
-    id
-    points
-    createdAt
-    updatedAt
-    title
-    description
-    productAvailableTo
-    productAvailableFrom
-    basePrice
-    packSize
-    discount
-    category
-    status
-    manufacturer
-    tags
-    vendorId
-    vendor {
-      id
-      image
-      name
-    }
-    images {
-      id
-      url
-      productId
-      createdAt
-      updatedAt
-    }
-  }
-}
-    `;
-
-export function useFullProductsQuery(options: Omit<Urql.UseQueryArgs<FullProductsQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<FullProductsQuery>({ query: FullProductsDocument, ...options });
 };
 export const GetProductsDocument = gql`
     query getProducts($limit: Int!, $cursor: String, $vendorId: Int) {

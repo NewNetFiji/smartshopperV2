@@ -4,6 +4,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import { withUrqlClient } from "next-urql";
 import React from "react";
+import { Layout } from "../src/components/Layout";
 import Footer from "../src/components/ui/footer";
 import Header from "../src/components/ui/Header";
 import { createUrqlClient } from "../src/utils/createUrqlClient";
@@ -32,16 +33,13 @@ export const Products = () => {
   const classes = useStyles();
 
   return (
-    <React.Fragment>
-      <CssBaseline />
-      <Header />
+    <Layout>
       <main>
         <Container className={classes.root} maxWidth="lg">
           <Typography variant="h2">Products Page</Typography>
         </Container>
       </main>
-      <Footer />
-    </React.Fragment>
+    </Layout>
   );
 };
 

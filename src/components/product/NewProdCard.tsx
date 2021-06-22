@@ -14,6 +14,7 @@ import { Product, useVoteMutation } from "../../generated/graphql";
 import capitalizeFirstLetter from "../../utils/capitalizeFirstLetter";
 interface cardProps {
   data: Product;
+  handleAddToCart: (clickedItem: Product) => void;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -64,7 +65,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export const ProductCard: React.FC<cardProps> = ({ data }) => {
+export const ProductCard: React.FC<cardProps> = ({ data, handleAddToCart }) => {
   const classes = useStyles();
 
   const [, vote] = useVoteMutation();
@@ -142,9 +143,9 @@ export const ProductCard: React.FC<cardProps> = ({ data }) => {
               component="div"
               align="right"
               variant="h6"
-              color="textSecondary"
+              color="textSecondary"              
             >
-              $ {data.basePrice}
+              $ { data.basePrice.toFixed(2)}
             </Typography>
           </Grid>
           <Grid item xs={12}>
@@ -168,6 +169,7 @@ export const ProductCard: React.FC<cardProps> = ({ data }) => {
           />
         </IconButton>
         <Button
+        onClick={()=>handleAddToCart}
           variant="contained"
           color="primary"
           className={classes.button}

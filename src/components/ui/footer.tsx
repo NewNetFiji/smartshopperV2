@@ -1,4 +1,4 @@
-import { Grid, Link, makeStyles, Typography } from "@material-ui/core";
+import { Box, Container, Grid, Link, makeStyles, Typography } from "@material-ui/core";
 import React from "react";
 import { Copyright } from "./copyright";
 import { blueGrey } from "@material-ui/core/colors";
@@ -16,7 +16,48 @@ const useStyles = makeStyles((theme) => ({
   cursive: {
     fontFamily: "Lobster",
   },
+  footer: {
+    borderTop: `1px solid ${theme.palette.divider}`,
+    marginTop: theme.spacing(8),
+    paddingTop: theme.spacing(3),
+    paddingBottom: theme.spacing(3),
+    [theme.breakpoints.up("sm")]: {
+      paddingTop: theme.spacing(6),
+      paddingBottom: theme.spacing(6),
+    },
+  },
 }));
+
+const footers = [
+  {
+    title: "Company",
+    description: ["Team", "History", "Contact us", "Locations"],
+  },
+  {
+    title: "Features",
+    description: [
+      "Cool stuff",
+      "Random feature",
+      "Team feature",
+      "Developer stuff",
+      "Another one",
+    ],
+  },
+  {
+    title: "Resources",
+    description: [
+      "Resource",
+      "Resource name",
+      "Another resource",
+      "Final resource",
+    ],
+  },
+  {
+    title: "Legal",
+    description: ["Privacy policy", "Terms of use"],
+  },
+];
+
 
 export default function Footer() {
   const classes = useStyles();
@@ -26,60 +67,29 @@ export default function Footer() {
   return (
     <React.Fragment>
       <footer className={classes.root}>
-        <Grid container>
-          <Grid style={{ backgroundColor: blueGrey[200] }} container>
-            <Grid style={{ margin: "auto" }} item xs={4}>
-              <Grid container>
-                <Grid item style={{ width: "100%" }}>
-                  <Typography
-                    variant="h6"
-                    align="center"
-                    gutterBottom
-                    className={classes.cursive}
-                  >
-                    Smart Shopper Fiji is a 100% Fijian Owned Platform
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} >
-                  <Grid container style={{ flexGrow: 1, flexDirection: "row" }}>
-                    <Typography
-                      style={{ fontFamily: "Raleway" }}
-                      variant="body1"
-                      align="center"
-                      component="div"
-                    >
-                      <Grid item style={{width: "100%"}} xs={4}>
-                        <Link href="#" onClick={preventDefault} variant="body2">
-                          About Us
-                        </Link>
-                      </Grid>
-                      <Grid item style={{width: "100%"}} xs={4}>
-                        <Link href="#" onClick={preventDefault} variant="body2">
-                          Contact Us
-                        </Link>
-                      </Grid>
-                      <Grid item style={{width: "100%"}} xs={4}>
-                        <Link href="#" onClick={preventDefault} variant="body2">
-                          Location
-                        </Link>
-                      </Grid>
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Grid>
+      <Container maxWidth="md" component="footer" className={classes.footer}>
+        <Grid container spacing={4} justify="space-evenly">
+          {footers.map((footer) => (
+            <Grid item xs={6} sm={3} key={footer.title}>
+              <Typography variant="h6" color="textPrimary" gutterBottom>
+                {footer.title}
+              </Typography>
+              <ul>
+                {footer.description.map((item) => (
+                  <li key={item}>
+                    <Link href="#" variant="subtitle1" color="textSecondary">
+                      {item}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </Grid>
-          </Grid>
-          <Grid className={classes.copyRight} item xs={12}>
-            <Typography
-              variant="subtitle1"
-              align="center"
-              color="textSecondary"              
-            >
-              Helping Fijians make smarter shopping choices!
-            </Typography>
-            <Copyright />
-          </Grid>
+          ))}
         </Grid>
+        </Container>
+        <Box mt={5}>
+          <Copyright />
+        </Box>
       </footer>
     </React.Fragment>
   );

@@ -5,6 +5,7 @@ import Head from "next/head";
 import PropTypes from "prop-types";
 import React from "react";
 import theme from "../src/theme";
+// import Header from "../src/components/ui/Header"
  
 export default function MyApp(props: AppProps) {
   const { Component, pageProps } = props;
@@ -30,7 +31,7 @@ export default function MyApp(props: AppProps) {
       <ThemeProvider theme={theme}>
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
-
+        
         <Component {...pageProps} />
       </ThemeProvider>
     </React.Fragment>

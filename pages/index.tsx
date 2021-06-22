@@ -1,21 +1,16 @@
-import {
-  makeStyles
-} from "@material-ui/core";
 import { withUrqlClient } from "next-urql";
 import React from "react";
 import { createUrqlClient } from "../src/utils/createUrqlClient";
 import { Products } from "../src/components/product/Products";
+import { Layout } from "../src/components/Layout";
 
-const useStyles = makeStyles((theme) => ({
-  
-}));
 
 const Index = () => {
-  const classes = useStyles();
-  
 
   return (
-    <Products />
+    <Layout>
+      <Products />
+    </Layout>
   );
 };
 
