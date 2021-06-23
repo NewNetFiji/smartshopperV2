@@ -292,6 +292,7 @@ export type Query = {
   getProducts: PaginatedProducts;
   products: Array<Product>;
   product?: Maybe<Product>;
+  vendor?: Maybe<Vendor>;
   getPublicVendor?: Maybe<Vendor>;
   me?: Maybe<User>;
   image?: Maybe<Image>;
@@ -316,6 +317,11 @@ export type QueryProductsArgs = {
 
 
 export type QueryProductArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryVendorArgs = {
   id: Scalars['Int'];
 };
 
@@ -668,6 +674,19 @@ export type ProductsQuery = (
   )> }
 );
 
+export type VendorQueryVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type VendorQuery = (
+  { __typename?: 'Query' }
+  & { vendor?: Maybe<(
+    { __typename?: 'Vendor' }
+    & Pick<Vendor, 'id' | 'name' | 'address' | 'tin' | 'image' | 'status' | 'vendorType' | 'createdAt' | 'updatedAt'>
+  )> }
+);
+
 export const RegularUserFragmentDoc = gql`
     fragment RegularUser on User {
   id
@@ -936,4 +955,23 @@ export const ProductsDocument = gql`
 
 export function useProductsQuery(options: Omit<Urql.UseQueryArgs<ProductsQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<ProductsQuery>({ query: ProductsDocument, ...options });
+};
+export const VendorDocument = gql`
+    query Vendor($id: Int!) {
+  vendor(id: $id) {
+    id
+    name
+    address
+    tin
+    image
+    status
+    vendorType
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+export function useVendorQuery(options: Omit<Urql.UseQueryArgs<VendorQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<VendorQuery>({ query: VendorDocument, ...options });
 };

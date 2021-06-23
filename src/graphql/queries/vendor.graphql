@@ -1,0 +1,13 @@
+query Vendor($id: Int! ) {
+  vendor(id: $id){
+    id
+    name
+    address
+    tin
+    image
+    status
+    vendorType
+    createdAt
+    updatedAt
+  }
+}

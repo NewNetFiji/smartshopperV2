@@ -1,4 +1,4 @@
-import { Badge, Button, Grid } from "@material-ui/core";
+import { Badge, Button, Grid, Link} from "@material-ui/core";
 import Avatar from "@material-ui/core/Avatar";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
@@ -8,6 +8,7 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import AddShoppingCartIcon from "@material-ui/icons/AddShoppingCart";
 import FavoriteIcon from "@material-ui/icons/Favorite";
+import NextLink from "next/link";
 import React, { useState } from "react";
 import Carousel from "react-material-ui-carousel";
 import { Product, useVoteMutation } from "../../generated/graphql";
@@ -67,6 +68,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export const ProductCard: React.FC<cardProps> = ({ data, handleAddToCart }) => {
   const classes = useStyles();
+  
 
   const [, vote] = useVoteMutation();
   const [voted, setVoted] = useState(data.voteStatus);
@@ -95,6 +97,10 @@ export const ProductCard: React.FC<cardProps> = ({ data, handleAddToCart }) => {
         setVoted(true);
       }
     }
+  }
+  
+  const handleVendorIconClick = () => {
+
   }
 
   return (
@@ -161,15 +167,17 @@ export const ProductCard: React.FC<cardProps> = ({ data, handleAddToCart }) => {
             <FavoriteIcon color={voted ? "primary" : "disabled"} />
           </Badge>
         </IconButton>
-        <IconButton aria-label="vendor">
+        <NextLink href="/vendor/[id]" as={`/vendor/${data.vendor.id}`} passHref>
+        <IconButton aria-label="vendor" >
           <Avatar
             aria-label="Product"
             className={classes.avatar}
             src={data.vendor.image}
           />
         </IconButton>
+        </NextLink>
         <Button
-        onClick={()=>handleAddToCart}
+          onClick={()=>handleAddToCart}
           variant="contained"
           color="primary"
           className={classes.button}
