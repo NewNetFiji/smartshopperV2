@@ -1,19 +1,23 @@
-query Products($limit: Int!, $cursor: String, $vendorId: Int) {
-  products(cursor: $cursor, limit: $limit, vendorId: $vendorId) {
+query Products($vendorId: Int){
+  products(vendorId: $vendorId){
     id
-    vendorId
     points
+      downPoints
+      voteStatus
     createdAt
     updatedAt
     title
     description
+    descSnippet
     productAvailableTo
     productAvailableFrom
     basePrice
+    packSize
     discount
     category
     status
     manufacturer
     tags
+    vendorId    
   }
 }

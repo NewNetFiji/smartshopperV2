@@ -1,8 +1,10 @@
 import {
   Box,
   Container,
+  Divider,
   Grid,
   makeStyles,
+  Paper,
   Tab,
   Tabs,
   Typography,
@@ -11,6 +13,8 @@ import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { Layout } from "../../src/components/Layout";
+import ProductTable from "../../src/components/product/ProductTable";
+import TblControls from "../../src/components/ui/TblControls";
 import { useVendorQuery } from "../../src/generated/graphql";
 import theme from "../../src/theme";
 import { createUrqlClient } from "../../src/utils/createUrqlClient";
@@ -23,7 +27,6 @@ let lastTab: number;
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
-    flexDirection: "column",
   },
   center: {
     display: "flex",
@@ -31,28 +34,31 @@ const useStyles = makeStyles((theme) => ({
     alignContent: "center",
     justifyContent: "center",
   },
-  header: {
-    marginTop: theme.spacing(3),
+  file: {
+    backgroundColor: "#F8F5E6",
+    padding: 3,
+    height: "100%",
+    flexGrow: 1,
+    marginTop: theme.spacing(5),
   },
-  detail: {
-   
+  filePage: {
+    justifyContent: "center",
+    alignContent: "center",
+    border: 1,
+    height: "100%",
+    width: "100%",
+    padding: 5,
   },
   tabContainer: {
     marginLeft: "auto",
     overflowX: "auto",
     color: theme.palette.getContrastText("#ffffff"),
+    marginTop: 5,
   },
   tab: {
     ...theme.typography.tab,
     minWidth: 10,
     color: theme.palette.getContrastText("#ffffff"),
-  },
-  tabBox: {
-    border: 1,
-    borderColor: theme.palette.grey[500],
-    borderRadius: 15,
-    padding: 5,
-    marginTop: theme.spacing(1),
   },
 }));
 
@@ -65,12 +71,15 @@ export const Vendor: React.FC<props> = ({}) => {
   const [currentTabFocus, setCurrent] = useState(0);
   const intId =
     typeof router.query.id === "string" ? parseInt(router.query.id) : -1;
-  const [{ data, fetching }] = useVendorQuery({
+  
+    const [{ data, fetching }] = useVendorQuery({
     pause: intId === -1,
     variables: {
       id: intId,
     },
   });
+
+  
 
   //   useEffect(() => {
   //     if (currentTabFocus != value ) {
@@ -81,8 +90,7 @@ export const Vendor: React.FC<props> = ({}) => {
   const handleChange = (e: React.ChangeEvent<{}>, newTab: number) => {
     lastTab = value;
     setValue(newTab);
-    setCurrent(newTab);
-    console.log("tab: ", newTab);
+    setCurrent(newTab);    
   };
 
   if (fetching) {
@@ -107,51 +115,93 @@ export const Vendor: React.FC<props> = ({}) => {
 
   return (
     <Layout>
-      <Container maxWidth="md">
-        <Grid container className={classes.root}>
-          <Grid item className={classes.detail} xs={12}>
-            <Tabs
-              value={value}
-              onChange={handleChange}
-              className={classes.tabContainer}
-            >
-              {vendorTabs.map((t, value) => (
-                <Tab className={classes.tab} key={value} label={t} />
-              ))}
-            </Tabs>
+      <Container maxWidth="md" className={classes.root}>
+        <Paper className={classes.file}>
+          <Grid
+            container
+            direction="row"
+            justify="flex-start"
+            alignItems="flex-start"
+          >
+            <Grid item xs={12}>
+              <Tabs
+                indicatorColor="primary"
+                value={value}
+                onChange={handleChange}
+                className={classes.tabContainer}
+              >
+                {vendorTabs.map((t, value) => (
+                  <Tab className={classes.tab} key={value} label={t} />
+                ))}
+              </Tabs>
+              <Divider />
+            </Grid>
+            <Grid item xs={12}>
+              {/* Details Page */}
+              <Grid item xs={12}>
+                <Box
+                  display={currentTabFocus === 0 ? "block" : "none"}
+                  className={classes.filePage}
+                >
+                  <Grid
+                    container
+                    direction="row"
+                    justify="flex-start"
+                    alignItems="center"
+                  >
+                    <Grid item xs={3} style={{padding: theme.spacing(2)}}>
+                      <img src={data.vendor.image} alt="no image" />
+                    </Grid>
+                    <Grid item xs={9} style={{padding: theme.spacing(4)}}>
+                      <Typography variant="h6">
+                        <b>
+                          <u>Vendor ID: </u>
+                        </b>{" "}
+                        {data.vendor.id}
+                        <br />
+                        <b>
+                          {" "}
+                          <u>Name: </u>
+                        </b>
+                        {data.vendor.name}
+                      </Typography>
+                      <br />
+                      <Typography variant="body1">
+                        Address: {data.vendor.address}
+                        <br />
+                        Vendor TIN: {data.vendor.tin}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </Box>
+              </Grid>
+
+              {/* Products Page */}
+              <Box
+                display={currentTabFocus === 1 ? "block" : "none"}
+                className={classes.filePage}
+              >
+                <ProductTable vendorId={data.vendor.id} />
+              </Box>
+
+              {/* Reviews Page */}
+              <Box
+                display={currentTabFocus === 2 ? "block" : "none"}
+                className={classes.filePage}
+              >
+                <Grid item xs={12}>
+
+                </Grid>
+              </Box>
+
+              {/* Maps Page */}
+              <Box
+                display={currentTabFocus === 3 ? "block" : "none"}
+                className={classes.filePage}
+              ></Box>
+            </Grid>
           </Grid>
-          <Grid item className={classes.header} xs={12}>
-            <Box display={currentTabFocus === 0 ? "block" : "none"}>
-              <Typography variant="h6"> 1</Typography>
-            </Box>
-            <Box
-              display={currentTabFocus === 1 ? "block" : "none"}
-              style={{
-                justifyContent: "center",
-                alignContent: "center",
-                border: 1,
-                height: "100vh",
-                width: "100%",
-                backgroundColor: "#ff0000",
-              }}
-            >
-              <Typography variant="h6"> 2</Typography>
-            </Box>
-            <Box
-              display={currentTabFocus === 2 ? "block" : "none"}
-              style={{
-                justifyContent: "center",
-                alignContent: "center",
-                border: 1,
-                height: "100vh",
-                width: "100%",
-                backgroundColor: "#00ff00",
-              }}
-            >
-              <Typography variant="h6"> 3</Typography>
-            </Box>
-          </Grid>
-        </Grid>
+        </Paper>
       </Container>
     </Layout>
   );

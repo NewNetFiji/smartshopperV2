@@ -1,46 +1,94 @@
+import { Box, Grid } from "@material-ui/core";
 import Container from "@material-ui/core/Container";
-import CssBaseline from "@material-ui/core/CssBaseline";
 import { makeStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
 import { withUrqlClient } from "next-urql";
-import React from "react";
+import React, { useState } from "react";
 import { Layout } from "../src/components/Layout";
-import Footer from "../src/components/ui/footer";
-import Header from "../src/components/ui/Header";
+import { CreateProductForm } from "../src/components/product/createProductForm";
+import ProductMaster from "../src/components/product/ProductMaster";
+import ProductTable from "../src/components/product/ProductTable";
+import { Product, useMeQuery } from "../src/generated/graphql";
+import theme from "../src/theme";
 import { createUrqlClient } from "../src/utils/createUrqlClient";
+import { useIsAuth } from "../src/utils/useIsAuth";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
-    flexDirection: "column",
+    flexGrow: 1,
     minHeight: "100vh",
   },
   main: {
     marginTop: theme.spacing(8),
     marginBottom: theme.spacing(2),
   },
-  footer: {
-    padding: theme.spacing(3, 2),
-    marginTop: "auto",
-    backgroundColor:
-      theme.palette.type === "light"
-        ? theme.palette.grey[200]
-        : theme.palette.grey[800],
+  gridContainer: {
+    height: "100%",
+  },
+  pane: {
+    padding: 0,
+    margin: 0,
+    alignItems: "stretch",
   },
 }));
 
-export const Products = () => {
+export const Products: React.FC<{}> = () => {
+  useIsAuth();
   const classes = useStyles();
+  const [{ data: meData, fetching }] = useMeQuery();
+  
+  const [detail, setDetail] = useState<{
+    [x: string]: string | number;
+}>()
+
+  const vendorId = meData?.me?.vendorId;
+
+  const handleCellClick =
+    (item: {
+      [x: string]: string | number;
+  }) => (e: React.MouseEvent<HTMLTableRowElement>) => {
+      setDetail(item);
+    };
 
   return (
     <Layout>
       <main>
         <Container className={classes.root} maxWidth="lg">
-          <Typography variant="h2">Products Page</Typography>
+          <Grid container className={classes.gridContainer}>
+            <Grid item xs={4} className={classes.pane}>
+              {/* <Box
+                border={1}
+                borderRadius={5}
+                borderColor={theme.palette.grey[300]}
+                height="100%"
+                marginTop={3}
+                marginRight={3}
+                padding={0}
+              > */}
+              {fetching ? (
+                <div>Loading...</div>
+              ) : (
+                <ProductMaster vendorId={vendorId as number} handleCellClick={handleCellClick} />
+              )}
+
+              {/* </Box> */}
+            </Grid>
+            <Grid item xs={8}>
+              <Box
+                border={1}
+                borderRadius={5}
+                borderColor={theme.palette.grey[300]}
+                height="100%"
+                marginTop={3}
+              >
+                <CreateProductForm item={detail as unknown as Product}/>
+              </Box>
+            </Grid>
+          </Grid>
         </Container>
       </main>
     </Layout>
   );
 };
 
-export default withUrqlClient(createUrqlClient)(Products);
+export default withUrqlClient(createUrqlClient, { ssr: true })(Products);

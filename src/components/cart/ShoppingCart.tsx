@@ -19,7 +19,7 @@ const ShoppingCart = ({data}:props) => {
   const [cartOpen, setCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState([] as Product[]);
   
-  console.log(data);
+  
 
   const getTotalItems = (items: Product[]) =>
     items.reduce((ack: number, item) => ack + item.basePrice, 0);

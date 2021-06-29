@@ -7,16 +7,10 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
     flexGrow: 1,
-    backgroundColor: theme.palette.background.paper,
-    //padding: theme.spacing(6),
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText    
   },
-  copyRight: {
-    backgroundColor: blueGrey[300],
-  },
-  cursive: {
-    fontFamily: "Lobster",
-  },
-  footer: {
+  footer: {    
     borderTop: `1px solid ${theme.palette.divider}`,
     marginTop: theme.spacing(8),
     paddingTop: theme.spacing(3),
@@ -71,7 +65,7 @@ export default function Footer() {
         <Grid container spacing={4} justify="space-evenly">
           {footers.map((footer) => (
             <Grid item xs={6} sm={3} key={footer.title}>
-              <Typography variant="h6" color="textPrimary" gutterBottom>
+              <Typography variant="h6" color="textSecondary" gutterBottom>
                 {footer.title}
               </Typography>
               <ul>

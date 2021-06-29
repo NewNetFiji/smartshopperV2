@@ -256,6 +256,7 @@ export type Product = {
   upboats?: Maybe<Array<Upboat>>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
+  descSnippet: Scalars['String'];
 };
 
 export type ProductInput = {
@@ -302,6 +303,11 @@ export type Query = {
 };
 
 
+export type QueryCountProductsArgs = {
+  vendorId?: Maybe<Scalars['Int']>;
+};
+
+
 export type QueryGetProductsArgs = {
   vendorId?: Maybe<Scalars['Int']>;
   cursor?: Maybe<Scalars['String']>;
@@ -311,8 +317,6 @@ export type QueryGetProductsArgs = {
 
 export type QueryProductsArgs = {
   vendorId?: Maybe<Scalars['Int']>;
-  cursor?: Maybe<Scalars['String']>;
-  limit: Scalars['Int'];
 };
 
 
@@ -577,7 +581,9 @@ export type VoteMutation = (
   & Pick<Mutation, 'vote'>
 );
 
-export type CountProductsQueryVariables = Exact<{ [key: string]: never; }>;
+export type CountProductsQueryVariables = Exact<{
+  vendorId?: Maybe<Scalars['Int']>;
+}>;
 
 
 export type CountProductsQuery = (
@@ -660,8 +666,6 @@ export type ProductQuery = (
 );
 
 export type ProductsQueryVariables = Exact<{
-  limit: Scalars['Int'];
-  cursor?: Maybe<Scalars['String']>;
   vendorId?: Maybe<Scalars['Int']>;
 }>;
 
@@ -670,7 +674,7 @@ export type ProductsQuery = (
   { __typename?: 'Query' }
   & { products: Array<(
     { __typename?: 'Product' }
-    & Pick<Product, 'id' | 'vendorId' | 'points' | 'createdAt' | 'updatedAt' | 'title' | 'description' | 'productAvailableTo' | 'productAvailableFrom' | 'basePrice' | 'discount' | 'category' | 'status' | 'manufacturer' | 'tags'>
+    & Pick<Product, 'id' | 'points' | 'downPoints' | 'voteStatus' | 'createdAt' | 'updatedAt' | 'title' | 'description' | 'descSnippet' | 'productAvailableTo' | 'productAvailableFrom' | 'basePrice' | 'packSize' | 'discount' | 'category' | 'status' | 'manufacturer' | 'tags' | 'vendorId'>
   )> }
 );
 
@@ -818,8 +822,8 @@ export function useVoteMutation() {
   return Urql.useMutation<VoteMutation, VoteMutationVariables>(VoteDocument);
 };
 export const CountProductsDocument = gql`
-    query CountProducts {
-  countProducts
+    query CountProducts($vendorId: Int) {
+  countProducts(vendorId: $vendorId)
 }
     `;
 
@@ -932,23 +936,27 @@ export function useProductQuery(options: Omit<Urql.UseQueryArgs<ProductQueryVari
   return Urql.useQuery<ProductQuery>({ query: ProductDocument, ...options });
 };
 export const ProductsDocument = gql`
-    query Products($limit: Int!, $cursor: String, $vendorId: Int) {
-  products(cursor: $cursor, limit: $limit, vendorId: $vendorId) {
+    query Products($vendorId: Int) {
+  products(vendorId: $vendorId) {
     id
-    vendorId
     points
+    downPoints
+    voteStatus
     createdAt
     updatedAt
     title
     description
+    descSnippet
     productAvailableTo
     productAvailableFrom
     basePrice
+    packSize
     discount
     category
     status
     manufacturer
     tags
+    vendorId
   }
 }
     `;
