@@ -43,7 +43,7 @@ const headCells = [
 
 interface props {
   vendorId: number;
-  handleCellClick: (id: number)=>void
+  handleCellClick: (item: any)=>void
 }
 
 export default function ProductMaster({ vendorId , handleCellClick}: props) {

@@ -1,10 +1,10 @@
-query getProducts($limit: Int!, $cursor: String, $vendorId: Int) {
-  getProducts(cursor: $cursor, limit: $limit, vendorId: $vendorId) {
+query getProducts($limit: Int!, $cursor: String, $filterString: String) {
+  getProducts(cursor: $cursor, limit: $limit, filterString: $filterString) {
     hasMore
     products {id
     points
-    downPoints
-    voteStatus
+      downPoints
+      voteStatus
     createdAt
     updatedAt
     title

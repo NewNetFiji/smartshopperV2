@@ -34,29 +34,29 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface props {
-  handleAddToCart: (clickedItem: Product) => void;
-}
 
-export const Products: React.FC<props> = ({ handleAddToCart }) => {
+export const Products: React.FC = () => {
   const classes = useStyles();
 
   const [variables, setVariables] = useState({
     limit: 48,
     cursor: null as null | undefined | string,
+    filterString: null as null | undefined | string,
   });
+
   const [{ data, fetching }] = useGetProductsQuery({
     variables,
   });
+
+  console.log("variables parent: ", variables);
 
   let body = null;
   if (data) {
     body = (
       <>
-        {data.getProducts.products?.map((product) => (
-          <Grid item key={product.id} xs={12} sm={3}>
-            <ProductCard
-              handleAddToCart={handleAddToCart}
+        {data.getProducts.products?.map((product, indx) => (
+          <Grid item key={indx} xs={12} sm={3}>
+            <ProductCard              
               data={product as Product}
             />
           </Grid>
@@ -69,7 +69,7 @@ export const Products: React.FC<props> = ({ handleAddToCart }) => {
     <React.Fragment>
       <main>
         <Container className={classes.cardContainer} maxWidth="lg">
-          <CustomSearchBar />
+          <CustomSearchBar variables={variables} setVariables={setVariables}/>
 
           <Grid container spacing={2}>
             {fetching && !data ? (
@@ -91,6 +91,7 @@ export const Products: React.FC<props> = ({ handleAddToCart }) => {
                       data?.getProducts.products[
                         data.getProducts.products.length - 1
                       ].createdAt,
+                      filterString: variables.filterString
                   })
                 }
               >

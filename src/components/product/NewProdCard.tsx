@@ -13,9 +13,9 @@ import React, { useState } from "react";
 import Carousel from "react-material-ui-carousel";
 import { Product, useVoteMutation } from "../../generated/graphql";
 import capitalizeFirstLetter from "../../utils/capitalizeFirstLetter";
+import { Item, useCart } from "../cart/store";
 interface cardProps {
-  data: Product;
-  handleAddToCart: (clickedItem: Product) => void;
+  data: Product; 
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -66,10 +66,10 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export const ProductCard: React.FC<cardProps> = ({ data, handleAddToCart }) => {
+export const ProductCard: React.FC<cardProps> = ({ data }) => {
   const classes = useStyles();
   
-
+  const addToCart = useCart((state) => state.addItem);
   const [, vote] = useVoteMutation();
   const [voted, setVoted] = useState(data.voteStatus);
   const [likes, setLike] = useState(data.points as number)
@@ -177,7 +177,7 @@ export const ProductCard: React.FC<cardProps> = ({ data, handleAddToCart }) => {
         </IconButton>
         </NextLink>
         <Button
-          onClick={()=>handleAddToCart}
+          onClick={()=>addToCart(data, 1, data.discount ? data.discount : 0, data.basePrice)}
           variant="contained"
           color="primary"
           className={classes.button}

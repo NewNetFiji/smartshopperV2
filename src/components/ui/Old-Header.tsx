@@ -5,34 +5,38 @@ import {
   Grid,
   IconButton,
   Slide,
-  Typography
+  Typography,
 } from "@material-ui/core";
 import AppBar from "@material-ui/core/AppBar";
 import Button from "@material-ui/core/Button";
 import { makeStyles } from "@material-ui/core/styles";
+import Tab from "@material-ui/core/Tab";
+import Tabs from "@material-ui/core/Tabs";
 import Toolbar from "@material-ui/core/Toolbar";
 import useScrollTrigger from "@material-ui/core/useScrollTrigger";
 import AddShoppingCartIcon from "@material-ui/icons/AddShoppingCart";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Product,
   useLogoutMutation,
   useMeQuery,
-  UserRole
+  UserRole,
 } from "../../generated/graphql";
 import { ClientOnly } from "../../utils/ClientOnly";
 import { isServer } from "../../utils/isServer";
 import Cart from "../cart/Cart";
-import { StyledButton } from "../cart/StyledButton.styles";
 import { AdminDrawer } from "../menu/AdminDrawer";
 import StyledLink from "./styledLink";
-
-import {useCart, Item} from "../cart/store"
 
 interface Props {
   children: React.ReactElement;
 }
+
+const routes = [{ title: "Manage Orders", path: "/orders" }];
+
+// Shared State
+let lastValue: number;
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -137,28 +141,78 @@ function HideOnScroll(props: Props) {
 
 export default function Header() {
   const router = useRouter();
-  const classes = useStyles();  
+  const classes = useStyles();
+  const [value, setValue] = useState(0);
   const [{ data, fetching }] = useMeQuery({
     pause: isServer(),
   });
   const [, logout] = useLogoutMutation();
-  async function handleLogout() {
-    await logout();
+  const handleLogout = () => {
+    logout();
     if (!isServer()) {
-      router.reload()
       router.push("/");
     }
   };
-  
-  const cartItems = useCart((state) => state.cartItems);
-  
+
   const [cartOpen, setCartOpen] = useState(false);
-  //const [cartItems, setCartItems] = useState([] as Product[]);
+  const [cartItems, setCartItems] = useState([] as Product[]);
 
-  const getTotalItems = (items: Item[]) =>
-    items.reduce((ack: number, item) => ack + item.qty, 0);
+  const getTotalItems = (items: Product[]) =>
+    items.reduce((ack: number, item) => ack + item.basePrice, 0);
 
-  
+  const handleAddToCart = (clickedItem: Product) => {
+    setCartItems((prev) => {
+      // 1. Is the item already added in the cart?
+      const isItemInCart = prev.find((item) => item.id === clickedItem.id);
+
+      if (isItemInCart) {
+        return prev.map((item) =>
+          item.id === clickedItem.id
+            ? { ...item, amount: item.basePrice + 1 }
+            : item
+        );
+      }
+      // First time the item is added
+      return [...prev, { ...clickedItem, amount: 1 }];
+    });
+  };
+
+  const handleRemoveFromCart = (id: number) => {
+    setCartItems((prev) =>
+      prev.reduce((ack, item) => {
+        if (item.id === id) {
+          if (item.basePrice === 1) return ack;
+          return [...ack, { ...item, amount: item.basePrice - 1 }];
+        } else {
+          return [...ack, item];
+        }
+      }, [] as Product[])
+    );
+  };
+
+  const handleChange = (e: React.ChangeEvent<{}>, newValue: number) => {
+    lastValue = value;
+    setValue(newValue);
+    router.push(routes[newValue].path);
+  };
+
+  useEffect(() => {
+    if (window.location.pathname === "/orders" && value !== 0) {
+      setValue(0);
+    }
+    // } else if (window.location.pathname === "/products" && value !== 1) {
+    //   setValue(1);
+    // } else if (window.location.pathname === "/flyers" && value !== 2) {
+    //   setValue(2);
+    // } else if (window.location.pathname === "/branches" && value !== 3) {
+    //   setValue(3);
+    // } else if (window.location.pathname === "/billing" && value !== 4) {
+    //   setValue(4);
+    // } else if (window.location.pathname === "/login" && value !== 5) {
+    //   setValue(5);
+    // }
+  }, [value]);
+
   let body = null;
   if (fetching) {
     //data is loading
@@ -182,20 +236,29 @@ export default function Header() {
       </div>
     );
   } else {
-    //user Is loged in. check for vendor Roles
+    //user Is loged in. check Roles
     const vendorRoles = [UserRole.Admin, UserRole.Data, UserRole.Super];
     if (data.me.roles.some((role) => vendorRoles.includes(role))) {
       body = (
         <React.Fragment>
-          <StyledButton onClick={() => setCartOpen(true)}>
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            className={classes.tabContainer}
+          >
+            {routes.map((route, value) => (
+              <Tab className={classes.tab} key={value} label={route.title} />
+            ))}
+          </Tabs>
+
+          <IconButton className={classes.shoppingCartIcon}>
             <Badge badgeContent={getTotalItems(cartItems)} color="error">
-              <AddShoppingCartIcon />
+              <AddShoppingCartIcon onClick={() => setCartOpen(true)} />
             </Badge>
-          </StyledButton>
+          </IconButton>
 
           <AdminDrawer data={data} />
-
-          {/* <Drawer
+          <Drawer
             anchor="right"
             open={cartOpen}
             onClose={() => setCartOpen(false)}
@@ -205,26 +268,27 @@ export default function Header() {
               addToCart={handleAddToCart}
               removeFromCart={handleRemoveFromCart}
             />
-          </Drawer> */}
+          </Drawer>
         </React.Fragment>
       );
     } else {
       body = (
-        //user is logged in with general/customer role
         <React.Fragment>
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            className={classes.tabContainer}
+          >
+            {routes.map((route, value) => (
+              <Tab className={classes.tab} key={value} label={route.title} />
+            ))}
+          </Tabs>
+
           <IconButton className={classes.shoppingCartIcon}>
             <Badge badgeContent={getTotalItems(cartItems)} color="error">
               <AddShoppingCartIcon onClick={() => setCartOpen(true)} />
             </Badge>
           </IconButton>
-          <Button
-            className={classes.headerButtons}
-            variant="text"
-            color="primary"
-            onClick={() => router.push("/orders")}
-          >
-            Orders
-          </Button>
           <Button
             className={classes.headerButtons}
             variant="text"
@@ -239,7 +303,11 @@ export default function Header() {
             open={cartOpen}
             onClose={() => setCartOpen(false)}
           >
-            <Cart />
+            <Cart
+              cartItems={cartItems}
+              addToCart={handleAddToCart}
+              removeFromCart={handleRemoveFromCart}
+            />
           </Drawer>
         </React.Fragment>
       );
@@ -258,9 +326,9 @@ export default function Header() {
                   direction="row"
                   justify="space-between"
                   alignItems="center"
-                  alignContent="flex-end"
+                  className={classes.toolbarLayout}
                 >
-                  <Grid item>
+                  <Grid item xs={6}>
                     <Button
                       onClick={() => {
                         router.push("/");
@@ -291,7 +359,7 @@ export default function Header() {
                       </Box>
                     </Button>
                   </Grid>
-                  <Grid item>{body}</Grid>
+                  <Grid item xs={6}>{body}</Grid>
                 </Grid>
               </Toolbar>
             </AppBar>

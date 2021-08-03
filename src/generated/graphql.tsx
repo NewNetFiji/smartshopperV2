@@ -45,25 +45,55 @@ export type ImageResponse = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  vote: Scalars['Boolean'];
-  createProduct: ProductResponse;
-  updateProduct?: Maybe<ProductResponse>;
-  deleteProduct?: Maybe<Scalars['Boolean']>;
-  registerVendor: VendorResponse;
-  updateVendor?: Maybe<VendorResponse>;
-  deleteVendor?: Maybe<Scalars['Boolean']>;
-  changePassword: UserResponse;
-  forgotPassword: Scalars['Boolean'];
-  register: UserResponse;
-  login: UserResponse;
-  logout: Scalars['Boolean'];
-  deleteUser?: Maybe<Scalars['Boolean']>;
   createImage: ImageResponse;
   updateImage?: Maybe<ImageResponse>;
   deleteImage?: Maybe<Scalars['Boolean']>;
   createOrder: OrderResponse;
   ackOrder?: Maybe<OrderResponse>;
   deleteOrder?: Maybe<Scalars['Boolean']>;
+  vote: Scalars['Boolean'];
+  createProduct: ProductResponse;
+  updateProduct?: Maybe<ProductResponse>;
+  deleteProduct?: Maybe<Scalars['Boolean']>;
+  changePassword: UserResponse;
+  forgotPassword: Scalars['Boolean'];
+  register: UserResponse;
+  login: UserResponse;
+  logout: Scalars['Boolean'];
+  deleteUser?: Maybe<Scalars['Boolean']>;
+  registerVendor: VendorResponse;
+  updateVendor?: Maybe<VendorResponse>;
+  deleteVendor?: Maybe<Scalars['Boolean']>;
+};
+
+
+export type MutationCreateImageArgs = {
+  options: ImageInput;
+};
+
+
+export type MutationUpdateImageArgs = {
+  options: ImageInput;
+};
+
+
+export type MutationDeleteImageArgs = {
+  id: Scalars['Float'];
+};
+
+
+export type MutationCreateOrderArgs = {
+  order: Array<OrderDetailInput>;
+};
+
+
+export type MutationAckOrderArgs = {
+  options: OrderHeaderInput;
+};
+
+
+export type MutationDeleteOrderArgs = {
+  id: Scalars['Float'];
 };
 
 
@@ -84,21 +114,6 @@ export type MutationUpdateProductArgs = {
 
 
 export type MutationDeleteProductArgs = {
-  id: Scalars['Float'];
-};
-
-
-export type MutationRegisterVendorArgs = {
-  options: VendorInput;
-};
-
-
-export type MutationUpdateVendorArgs = {
-  options: VendorInput;
-};
-
-
-export type MutationDeleteVendorArgs = {
   id: Scalars['Float'];
 };
 
@@ -130,32 +145,17 @@ export type MutationDeleteUserArgs = {
 };
 
 
-export type MutationCreateImageArgs = {
-  options: ImageInput;
+export type MutationRegisterVendorArgs = {
+  options: VendorInput;
 };
 
 
-export type MutationUpdateImageArgs = {
-  options: ImageInput;
+export type MutationUpdateVendorArgs = {
+  options: VendorInput;
 };
 
 
-export type MutationDeleteImageArgs = {
-  id: Scalars['Float'];
-};
-
-
-export type MutationCreateOrderArgs = {
-  order: Array<OrderDetailInput>;
-};
-
-
-export type MutationAckOrderArgs = {
-  options: OrderHeaderInput;
-};
-
-
-export type MutationDeleteOrderArgs = {
+export type MutationDeleteVendorArgs = {
   id: Scalars['Float'];
 };
 
@@ -256,7 +256,7 @@ export type Product = {
   upboats?: Maybe<Array<Upboat>>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
-  descSnippet: Scalars['String'];
+  descSnippet?: Maybe<Scalars['String']>;
 };
 
 export type ProductInput = {
@@ -289,44 +289,18 @@ export type ProductResponse = {
 export type Query = {
   __typename?: 'Query';
   hello: Scalars['String'];
-  countProducts: Scalars['Int'];
-  getProducts: PaginatedProducts;
-  products: Array<Product>;
-  product?: Maybe<Product>;
-  vendor?: Maybe<Vendor>;
-  getPublicVendor?: Maybe<Vendor>;
-  me?: Maybe<User>;
   image?: Maybe<Image>;
   images?: Maybe<Array<Image>>;
   getVendorOrders?: Maybe<PaginatedOrders>;
   order?: Maybe<Order>;
-};
-
-
-export type QueryCountProductsArgs = {
-  vendorId?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryGetProductsArgs = {
-  vendorId?: Maybe<Scalars['Int']>;
-  cursor?: Maybe<Scalars['String']>;
-  limit: Scalars['Int'];
-};
-
-
-export type QueryProductsArgs = {
-  vendorId?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryProductArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryVendorArgs = {
-  id: Scalars['Int'];
+  countProducts: Scalars['Int'];
+  getProducts: PaginatedProducts;
+  getVendorProducts: PaginatedProducts;
+  products: Array<Product>;
+  product?: Maybe<Product>;
+  me?: Maybe<User>;
+  vendor?: Maybe<Vendor>;
+  getPublicVendor?: Maybe<Vendor>;
 };
 
 
@@ -348,6 +322,40 @@ export type QueryGetVendorOrdersArgs = {
 
 
 export type QueryOrderArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryCountProductsArgs = {
+  vendorId?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryGetProductsArgs = {
+  filterString?: Maybe<Scalars['String']>;
+  cursor?: Maybe<Scalars['String']>;
+  limit: Scalars['Int'];
+};
+
+
+export type QueryGetVendorProductsArgs = {
+  vendorId?: Maybe<Scalars['Int']>;
+  cursor?: Maybe<Scalars['String']>;
+  limit: Scalars['Int'];
+};
+
+
+export type QueryProductsArgs = {
+  vendorId?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryProductArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryVendorArgs = {
   id: Scalars['Int'];
 };
 
@@ -594,7 +602,7 @@ export type CountProductsQuery = (
 export type GetProductsQueryVariables = Exact<{
   limit: Scalars['Int'];
   cursor?: Maybe<Scalars['String']>;
-  vendorId?: Maybe<Scalars['Int']>;
+  filterString?: Maybe<Scalars['String']>;
 }>;
 
 
@@ -831,8 +839,8 @@ export function useCountProductsQuery(options: Omit<Urql.UseQueryArgs<CountProdu
   return Urql.useQuery<CountProductsQuery>({ query: CountProductsDocument, ...options });
 };
 export const GetProductsDocument = gql`
-    query getProducts($limit: Int!, $cursor: String, $vendorId: Int) {
-  getProducts(cursor: $cursor, limit: $limit, vendorId: $vendorId) {
+    query getProducts($limit: Int!, $cursor: String, $filterString: String) {
+  getProducts(cursor: $cursor, limit: $limit, filterString: $filterString) {
     hasMore
     products {
       id

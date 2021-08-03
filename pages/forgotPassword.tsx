@@ -3,20 +3,17 @@ import Avatar from "@material-ui/core/Avatar";
 import Box from "@material-ui/core/Box";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Grid from "@material-ui/core/Grid";
-import Link from "@material-ui/core/Link";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import { Field, Form, Formik } from "formik";
 import { TextField } from "formik-material-ui";
 import { withUrqlClient } from "next-urql";
-import NextLink from "next/link";
-import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { Copyright } from "../src/components/ui/copyright";
+import StyledLink from "../src/components/ui/styledLink";
 import { useForgotPasswordMutation } from "../src/generated/graphql";
 import { createUrqlClient } from "../src/utils/createUrqlClient";
-import StyledLink from "../src/components/ui/styledLink";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -47,11 +44,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const ForgotPassword = ({}) => {
-  const router = useRouter();
+  
   const classes = useStyles();
   const [msg, setMsg] = useState(false);
   const [, resetPassword] = useForgotPasswordMutation();
-  let done: any = null;
+  
 
   return (
     <Container component="main" maxWidth="xs">
@@ -67,7 +64,7 @@ export const ForgotPassword = ({}) => {
           initialValues={{
             email: "",
           }}
-          onSubmit={async (values, { setErrors }) => {
+          onSubmit={async (values ) => {
             const response = await resetPassword({ email: values.email });
 
             if (response.data?.forgotPassword) {

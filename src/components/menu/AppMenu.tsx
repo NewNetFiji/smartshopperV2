@@ -1,22 +1,23 @@
-import { createStyles, makeStyles } from '@material-ui/core'
-import List from '@material-ui/core/List'
-import IconBarChart from '@material-ui/icons/BarChart'
-import IconDashboard from '@material-ui/icons/Dashboard'
-import IconLibraryBooks from '@material-ui/icons/LibraryBooks'
-import IconPeople from '@material-ui/icons/People'
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import IconShoppingCart from '@material-ui/icons/ShoppingCart'
-import React from 'react'
-import AppMenuItem from './AppMenuItem'
-import DeleteIcon from '@material-ui/icons/Delete';
-import PostAddIcon from '@material-ui/icons/PostAdd';
+import { createStyles, makeStyles } from "@material-ui/core";
+import List from "@material-ui/core/List";
+import CategoryIcon from "@material-ui/icons/Category";
+import CollectionsIcon from "@material-ui/icons/Collections";
+import IconDashboard from "@material-ui/icons/Dashboard";
+import LibraryAddIcon from "@material-ui/icons/LibraryAdd";
+import IconLibraryBooks from "@material-ui/icons/LibraryBooks";
+import MoneyOffIcon from "@material-ui/icons/MoneyOff";
+import IconPeople from "@material-ui/icons/People";
+import IconShoppingCart from "@material-ui/icons/ShoppingCart";
+import SupervisorAccountIcon from "@material-ui/icons/SupervisorAccount";
+import React from "react";
+import AppMenuItem from "./AppMenuItem";
 
-const drawerWidth = 240
+const drawerWidth = 240;
 
-const useStyles = makeStyles(theme =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     appMenu: {
-      width: '100%',
+      width: "100%",
     },
     navList: {
       width: drawerWidth,
@@ -27,65 +28,61 @@ const useStyles = makeStyles(theme =>
     menuItemIcon: {
       color: theme.palette.primary.main,
     },
-  }),
-)
-
+  })
+);
 
 const appMenuItems = [
   {
-    name: 'Dashboard',
-    link: '/',
+    name: "Dashboard",
+    link: "/",
     Icon: IconDashboard,
   },
   {
-    name: 'Orders',
-    link: '/orders',
+    name: "Orders",
+    link: "/orders",
     Icon: IconShoppingCart,
   },
+
   {
-    name: 'Users',    
-    Icon: IconPeople,
-    items: [
-      {
-        name: 'Add Users',
-        link: '/addUsers',
-        Icon: PersonAddIcon
-      },
-      {
-        name: 'Delete User',
-        link: '/deleteUsers',
-        Icon: DeleteIcon
-      }      
-      ]
-  },
-  {
-    name: 'Reports',
-    link: '/reports',
-    Icon: IconBarChart,
-  },
-  {
-    name: 'Products',
+    name: "Catalog",
     Icon: IconLibraryBooks,
     items: [
       {
-        name: 'Create Products',
-        link: '/createProduct',
-        Icon: PostAddIcon
-
+        name: "Products",
+        link: "/products",
+        Icon: LibraryAddIcon,
       },
       {
-        name: 'Delete Products',
-        link: '/deleteProduct',
-        Icon: DeleteIcon
-
-      }
-      
+        name: "Categories",
+        link: "/categories",
+        Icon: CategoryIcon,
+      },
+      {
+        name: "Collections",
+        link: "/collections",
+        Icon: CollectionsIcon,
+      },
     ],
   },
-]
+  {
+    name: "Customers",
+    link: "/customers",
+    Icon: SupervisorAccountIcon,
+  },
+  {
+    name: "Discounts",
+    link: "/discounts",
+    Icon: MoneyOffIcon,
+  },
+  {
+    name: "Users",
+    link: "/users",
+    Icon: IconPeople,
+  },
+];
 
 const AppMenu: React.FC = () => {
-  const classes = useStyles()
+  const classes = useStyles();
 
   return (
     <List component="nav" className={classes.appMenu} disablePadding>
@@ -94,7 +91,7 @@ const AppMenu: React.FC = () => {
         <AppMenuItem {...item} key={index} />
       ))}
     </List>
-  )
-}
+  );
+};
 
-export default AppMenu
+export default AppMenu;

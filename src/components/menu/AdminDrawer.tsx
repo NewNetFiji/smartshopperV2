@@ -1,25 +1,14 @@
 import {
-  SwipeableDrawer,
-  List,
-  Divider,
-  ListItem,
-  ListItemText,
-  makeStyles,
-  Avatar,
-  ListItemIcon,
-  Typography,
-  LinearProgress,
+  Avatar, Divider, LinearProgress, List, ListItem, ListItemIcon, ListItemText,
+  makeStyles, SwipeableDrawer, Typography
 } from "@material-ui/core";
-import React from "react";
-import { useState } from "react";
-import { MeQuery, useLogoutMutation, User } from "../../generated/graphql";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import AccountCircleIcon from "@material-ui/icons/AccountCircle";
-import ChatIcon from "@material-ui/icons/Chat";
 import { useRouter } from "next/router";
-import { isServer } from "../../utils/isServer";
+import React, { useState } from "react";
+import { MeQuery, useLogoutMutation, User } from "../../generated/graphql";
 import capitalizeFirstLetter from "../../utils/capitalizeFirstLetter";
-import AppMenu from "../menu/AppMenu";
+import { isServer } from "../../utils/isServer";
+import AppMenu from "./AppMenu";
 interface drawerProps {
   data: MeQuery | undefined;
 }
@@ -79,7 +68,7 @@ function getName(user: User) {
   }
 }
 
-export const CustomDrawer: React.FC<drawerProps> = ({ data }) => {
+export const AdminDrawer: React.FC<drawerProps> = ({ data }) => {
   const router = useRouter();
   const classes = useStyles();
   const [fetching, logout] = useLogoutMutation();

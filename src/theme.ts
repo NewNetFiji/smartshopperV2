@@ -52,11 +52,7 @@ export default createMuiTheme({
     },
     background: {
       default: "#f4f5fd"
-    },
-    text: {
-      primary: "#000000",
-      secondary: "#f4f5fd"
-    }    
+    }
   },  
   overrides:{
     MuiAppBar:{

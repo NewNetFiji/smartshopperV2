@@ -7,14 +7,13 @@ import {
   Paper,
   Tab,
   Tabs,
-  Typography,
+  Typography
 } from "@material-ui/core";
 import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Layout } from "../../src/components/Layout";
 import ProductTable from "../../src/components/product/ProductTable";
-import TblControls from "../../src/components/ui/TblControls";
 import { useVendorQuery } from "../../src/generated/graphql";
 import theme from "../../src/theme";
 import { createUrqlClient } from "../../src/utils/createUrqlClient";

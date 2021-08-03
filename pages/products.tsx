@@ -6,7 +6,6 @@ import React, { useState } from "react";
 import { Layout } from "../src/components/Layout";
 import { CreateProductForm } from "../src/components/product/createProductForm";
 import ProductMaster from "../src/components/product/ProductMaster";
-import ProductTable from "../src/components/product/ProductTable";
 import { Product, useMeQuery } from "../src/generated/graphql";
 import theme from "../src/theme";
 import { createUrqlClient } from "../src/utils/createUrqlClient";

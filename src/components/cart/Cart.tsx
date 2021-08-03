@@ -1,30 +1,27 @@
-import CartItem from './CartItem';
+import { Typography } from '@material-ui/core';
 import { Wrapper } from './Cart.styles';
-import {Product} from "../../generated/graphql"
+import CartItem from './CartItem';
+import { Item, useCart } from "./store";
 
-type Props = {
-  cartItems: Product[];
-  addToCart: (clickedItem: Product) => void;
-  removeFromCart: (id: number) => void;
-};
+const Cart: React.FC = () => {
 
-const Cart: React.FC<Props> = ({ cartItems, addToCart, removeFromCart }) => {
-  const calculateTotal = (items: Product[]) =>
-    items.reduce((ack: number, item) => ack + item.amount * item.basePrice, 0);
+  const cartItems = useCart((state) => state.cartItems);
+  
+  const calculateTotal = (items: Item[]) =>
+    items.reduce((ack: number, item) => ack + item.qty * item.price, 0);
 
   return (
     <Wrapper>
-      <h2>Your Shopping Cart</h2>
-      {cartItems.length === 0 ? <p>No items in cart.</p> : null}
+      <Typography variant="h5"> Your Shopping Cart</Typography>
+      {cartItems.length === 0 ? <Typography component="p" variant="body1">No items in cart.</Typography> : null}
       {cartItems.map(item => (
         <CartItem
           key={item.id}
-          item={item}
-          addToCart={addToCart}
-          removeFromCart={removeFromCart}
+          item={item}          
+          
         />
       ))}
-      <h2>Total: ${calculateTotal(cartItems).toFixed(2)}</h2>
+      <Typography variant="h6">Total: ${calculateTotal(cartItems).toFixed(2)}</Typography>
     </Wrapper>
   );
 };

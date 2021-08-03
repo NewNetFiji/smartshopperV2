@@ -1,16 +1,14 @@
 import {
-  cacheExchange,
-  NullArray,
-  Resolver,
-  Variables,
-  Cache,
+  Cache, cacheExchange, Resolver
 } from "@urql/exchange-graphcache";
+import gql from "graphql-tag";
 import Router from "next/router";
+import { useState } from "react";
 import {
   dedupExchange,
   Exchange,
   fetchExchange,
-  stringifyVariables,
+  stringifyVariables
 } from "urql";
 import { pipe, tap } from "wonka";
 import {
@@ -19,10 +17,9 @@ import {
   MeDocument,
   MeQuery,
   RegisterMutation,
-  VoteMutationVariables,
+  VoteMutationVariables
 } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
-import gql from "graphql-tag";
 import { isServer } from "./isServer";
 
 const errorExchange: Exchange =
@@ -41,6 +38,9 @@ const errorExchange: Exchange =
 const cursorPagination = (): Resolver => {
   return (_parent, fieldArgs, cache, info) => {
     const { parentKey: entityKey, fieldName } = info;
+    //const [currentSearch, setSearch ] = useState('');
+
+    console.log("fieldArgs: " , fieldArgs)
 
     const allFields = cache.inspectFields(entityKey);
     const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
@@ -78,7 +78,7 @@ const cursorPagination = (): Resolver => {
   };
 };
 
-function invalidateAllPosts(cache: Cache) {
+export function invalidateAllProducts(cache: Cache) {
   const allFields = cache.inspectFields("Query");
   const fieldInfos = allFields.filter(
     (info) => info.fieldName === "getProducts"
@@ -95,7 +95,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
   }
 
   return {
-    url: "http://localhost:4000/graphql",
+    url: process.env.NEXT_PUBLIC_API_URL as string,
     fetchOptions: {
       credentials: "include" as const,
       headers: cookie
@@ -169,7 +169,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
             },
 
             createProduct: (_result, args, cache, info) => {
-              invalidateAllPosts(cache);
+              invalidateAllProducts(cache);
             },
             logout: (_result, args, cache, info) => {
               betterUpdateQuery<LogoutMutation, MeQuery>(
@@ -193,6 +193,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                   }
                 }
               );
+              invalidateAllProducts(cache);
             },
 
             register: (_result, args, cache, info) => {
